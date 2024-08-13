@@ -1,0 +1,16 @@
+-- Table: Cats.Cats
+
+-- DROP TABLE IF EXISTS "Cats"."Cats";
+
+CREATE TABLE IF NOT EXISTS "Cats"."Cats"
+(
+    id SERIAL PRIMARY KEY,
+    "name" varchar(50),
+	"age" varchar(50),
+	"weight" int[]
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS "Cats"."Cats"
+    OWNER to postgres;
