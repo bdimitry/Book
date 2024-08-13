@@ -15,10 +15,11 @@ public class DBController {
     @Autowired
     private ObjectMapper objectMapper;
     private CatsDAO catsDAO = new CatsDAO();
-//    @GetMapping("/api/cats")
-//    public List<Cat> getCats() {
-//        return catList;
-//    }
+
+    @GetMapping("/api/cats/db")
+    public List<Cat> getCats() {
+        return catsDAO.getAllCats();
+    }
 
     @GetMapping("/api/cats/db/{id}")
     public Cat getCat(@PathVariable int id) {

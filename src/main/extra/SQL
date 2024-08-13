@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS "Cat"."CatT"
+(
+    name character varying(50) COLLATE pg_catalog."default",
+    id SERIAL  NOT NULL,
+    weight integer,
+    age integer,
+    CONSTRAINT "CatT_pkey" PRIMARY KEY (id)
+)

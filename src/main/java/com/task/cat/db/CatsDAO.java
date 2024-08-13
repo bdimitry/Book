@@ -1,15 +1,42 @@
 package com.task.cat.db;
 
-import com.task.cat.entity.Cat;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import com.task.cat.entity.Cat;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class CatsDAO {
-// проапдейтать sql(добавить
+// надо разобрать эту часть кода
+    public List<Cat> getAllCats() {
+        String sql = "SELECT * FROM \"Cat\".\"CatT\"";
+        List<Cat> cats = new ArrayList<>();
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                Cat cat = new Cat();
+                cat.setId(rs.getInt("id"));
+                cat.setName(rs.getString("name"));
+                cat.setAge(rs.getInt("age"));
+                cat.setWeight(rs.getInt("weight"));
+                cats.add(cat);
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return cats;
+    }
+
     public void createCat(Cat cat) {
-        String sql = " INSERT INTO \"Cats\".\"Cat\"(name, age, weight) VALUES (?, ?, ?)";
+        String sql = " INSERT INTO \"Cat\".\"CatT\"(name, age, weight) VALUES (?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -28,7 +55,7 @@ public class CatsDAO {
     }
 
     public Cat getCatById(int id) {
-        String sql = "SELECT * FROM \"Cats\".\"Cat\" WHERE id = ?";
+        String sql = "SELECT * FROM \"Cat\".\"CatT\" WHERE id = ?";
         Cat cat = new Cat();
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -50,7 +77,7 @@ public class CatsDAO {
     }
 
     public void updateCat(Cat cat) {
-        String sql = "UPDATE cats SET name = ?, age = ?, weight = ?, WHERE id = ?";
+        String sql = "UPDATE \"Cat\".\"CatT\" SET name = ?, age = ?, weight = ? WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -71,7 +98,7 @@ public class CatsDAO {
     }
 
     public void deleteCat(int id) {
-        String sql = "DELETE FROM cats WHERE id = ?";
+        String sql = "DELETE FROM \"Cat\".\"CatT\" WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
