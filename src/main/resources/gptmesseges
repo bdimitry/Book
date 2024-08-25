@@ -1,0 +1,33 @@
+java, lombock, hibernate, spring
+
+write how to Add an image to a PostgreSQL without using services with this as entity
+package com.catbd.cat.entity;
+
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(name = "cat", schema = "cats")
+@Getter
+@Setter
+@Builder
+@RequiredArgsConstructor
+@AllArgsConstructor
+//@NoArgsConstructor
+public class HibernateCat {
+
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+    @NotNull(message = "Name cannot be null")
+    @Size(min = 4, message = "Name should have at least 4 characters")
+    private String name;
+    private int age;
+    private int weight;
+}
+
+
+
