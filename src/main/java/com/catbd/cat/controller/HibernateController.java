@@ -88,6 +88,17 @@ public class HibernateController {
         }
     }
 
+    // Image get
+    @GetMapping("/{id}/image")
+    public ResponseEntity<byte[]> getImageCat(@PathVariable Long id) {
+        Optional<ImageCat> imageCatOpt = imageCatRepository.findById(id);
+        if (imageCatOpt.isPresent()) {
+            return new ResponseEntity<>(imageCatOpt.get().getImageData(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     // Delete Cat
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteHibernateCat(@PathVariable Long id) {
