@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -75,7 +76,7 @@ public class HibernateControllerTest {
 
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("TestCat", response.getBody().getName());
+        assertEquals("TestCat", Objects.requireNonNull(response.getBody()).getName());
     }
 
     @Test
