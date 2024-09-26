@@ -12,20 +12,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.*;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Optional;
 
+import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource(properties = {
@@ -47,10 +49,11 @@ public class HibernateControllerAutoTest {
     @Mock
     private HibernateCatRepository hibernateCatRepository;
 
-
     @Test
     public void testGetCats() {
-//        restTemplate.getCats();
+        createCat("Farcuad The Second", 3, 3);
+        createCat("Farcuad The Third", 4, 4);
+
         HibernateCat[] mockCats = restTemplate.getForObject("/v3/api/cats",
                 HibernateCat[].class);
 
@@ -62,47 +65,42 @@ public class HibernateControllerAutoTest {
                 } // Generic type token
         );
         List<HibernateCat> cats = response.getBody();
-//        assertEquals(2, cats.size());
+        assertEquals(200, response.getStatusCode().value());
         assertNotNull(cats.get(0).getName());
         assertNotNull(cats.get(1).getName());
-        assertEquals(4, cats.get(0).getAge());
-        assertEquals(2, cats.get(1).getAge());
-        assertEquals(8, cats.get(0).getWeight());
-        assertEquals(5, cats.get(1).getWeight());
-        assertEquals(200, response.getStatusCode());
+        assertNotNull(cats.get(0).getAge());
+        assertNotNull(cats.get(1).getAge());
+        assertNotNull(cats.get(0).getWeight());
+        assertNotNull(cats.get(1).getWeight());
     }
 
     @Test
     public void testGetCat() {
-        ResponseEntity<List<HibernateCat>> response = restTemplate.exchange(
-                "/v3/api/cats/1",
+        HibernateCat cat = createCat("Farcuad The Second", 3, 3);
+        ResponseEntity<HibernateCat> response = createCatRequest(cat);
+
+        HibernateCat postCat = response.getBody();
+        assertEquals(201, response.getStatusCode().value());
+
+        ResponseEntity<HibernateCat> responseGet = restTemplate.exchange(
+                "/v3/api/cats/" + postCat.getId(),
                 HttpMethod.GET,
                 null,  // Request entity (e.g., headers), or null if none
-                new ParameterizedTypeReference<List<HibernateCat>>() {
+                new ParameterizedTypeReference<HibernateCat>() {
                 } // Generic type token
         );
-        List<HibernateCat> cats = response.getBody();
-        assertEquals(1, cats.size());
-        assertNotNull(cats.getFirst().getName());
-        assertEquals(4, cats.getFirst().getAge());
-        assertEquals(8, cats.getFirst().getWeight());
-        assertEquals(200, response.getStatusCode());
+        HibernateCat cats = responseGet.getBody();
+        assertEquals(200, responseGet.getStatusCode().value());
+        assertNotNull(cats.getName());
+        assertEquals(3, cats.getAge());
+        assertEquals(3, cats.getWeight());
     }
 
     @Test
     public void testCreateHibernateCat() {
-        HibernateCat cat = new HibernateCat();
-        cat.setName("Farcuad The Second");
-        cat.setAge(3);
-        cat.setWeight(3);
-        HttpEntity<HibernateCat> catEntity = new HttpEntity<>(cat);
-        ResponseEntity<HibernateCat> response = restTemplate.exchange(
-                "/v3/api/cats",
-                HttpMethod.POST,
-                catEntity,
-                new ParameterizedTypeReference<HibernateCat>() {
-                }
-        );
+        HibernateCat cat = createCat("Farcuad The Second", 3, 3);
+        ResponseEntity<HibernateCat> response = createCatRequest(cat);
+
         HibernateCat postCat = response.getBody();
         assertEquals(201, response.getStatusCode().value());
         assertEquals("Farcuad The Second", postCat.getName());
@@ -126,54 +124,135 @@ public class HibernateControllerAutoTest {
 
     @Test
     public void testUpdateHibernateCat() {
-        // Создание тестового объекта HibernateCat
-        HibernateCat cat = new HibernateCat();
-        cat.setId(1L);
-        cat.setName("Farcuad");
-        cat.setWeight(5);
+        HibernateCat cat = createCat("Farcuad The Second", 3, 3);
+        ResponseEntity<HibernateCat> response = createCatRequest(cat);
+
+        HibernateCat postCat = response.getBody();
+
+        assertEquals(201, response.getStatusCode().value());
+        assertEquals("Farcuad The Second", postCat.getName());
+        assertEquals(3, postCat.getAge());
+        assertNotNull(postCat.getId());
+        assertEquals(3, postCat.getWeight());
+
+        HibernateCat catUpdate = new HibernateCat();
+        cat.setName("Farcuad The Third");
         cat.setAge(3);
+        cat.setWeight(3);
+        HttpEntity<HibernateCat> catEntityUpdated = new HttpEntity<>(cat);
 
-        // Мокирование существующего объекта в репозитории
-        doReturn(Optional.of(cat)).when(hibernateCatRepository).findById(1L);
+        ResponseEntity<HibernateCat> responseUpdate = restTemplate.exchange(
+                "/v3/api/cats/" + postCat.getId(),
+                HttpMethod.PUT,
+                catEntityUpdated,
+                new ParameterizedTypeReference<HibernateCat>() {
+                }
+        );
 
-        // Мокирование обновления объекта в репозитории
-        doReturn(cat).when(hibernateCatRepository).save(any(HibernateCat.class));
+        HibernateCat getCat = responseUpdate.getBody();
 
-        // Вызов метода контроллера для обновления
-        ResponseEntity<Object> response = hibernateController.updateHibernateCat(1L, cat, null);
-
-        // Проверка что статус ответа соответствует OK (200)
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-
-        // Проверка что в теле ответа возвращается обновленный объект HibernateCat с корректными данными
-        HibernateCat updatedCat = (HibernateCat) response.getBody();
-        assertNotNull(updatedCat);
-        assertEquals(1L, updatedCat.getId());
-        assertEquals("Farcuad", updatedCat.getName());
-        assertEquals(5, updatedCat.getWeight());
-        assertEquals(3, updatedCat.getAge());
+        assertEquals(200, responseUpdate.getStatusCode().value());
+        assertEquals("Farcuad The Third", getCat.getName());
+        assertEquals(3, getCat.getAge());
+        assertNotNull(getCat.getId());
+        assertEquals(3, getCat.getWeight());
     }
 
     @Test
     public void testDeleteHibernateCat() {
-        // Мокируем существование объекта
-        when(hibernateCatRepository.existsById(1L)).thenReturn(true);
+        HibernateCat cat = createCat("Farcuad The Second", 3, 3);
+        ResponseEntity<HibernateCat> response = createCatRequest(cat);
 
-        // Вызываем метод контроллера для удаления
-        ResponseEntity<Void> response = hibernateController.deleteHibernateCat(1L);
+        HibernateCat postCat = response.getBody();
+        assertEquals(201, response.getStatusCode().value());
+        assertEquals("Farcuad The Second", postCat.getName());
+        assertEquals(3, postCat.getAge());
+        assertNotNull(postCat.getId());
+        assertEquals(3, postCat.getWeight());
 
-        // Проверяем что статус NO_CONTENT (204)
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        ResponseEntity<HibernateCat> responseDelete = restTemplate.exchange(
+                "/v3/api/cats/" + postCat.getId(),
+                HttpMethod.DELETE,
+                null,
+                new ParameterizedTypeReference<HibernateCat>() {
+                }
+        );
 
-        // Проверяем что метод удаления был вызван в репозитории
-        verify(hibernateCatRepository, times(1)).deleteById(1L);
+        assertEquals(204, responseDelete.getStatusCode().value());
+
+        ResponseEntity<HibernateCat> responseGet = restTemplate.exchange(
+                "/v3/api/cats/" + postCat.getId(),
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<HibernateCat>() {
+                }
+        );
+
+        assertEquals(404, responseGet.getStatusCode().value());
     }
 
     @Test
     public void testUploadImageCat() throws Exception {
-        // Мокируем загрузку изображения
-        restTemplate.getForObject("/v3/api/cats",
-                HibernateCat.class);
+        HibernateCat cat = createCat("Farcuad The Second", 3, 3);
+        ResponseEntity<HibernateCat> response = createCatRequest(cat);
 
+        HibernateCat postCat = response.getBody();
+        assertEquals(201, response.getStatusCode().value());
+        assertEquals("Farcuad The Second", postCat.getName());
+        assertEquals(3, postCat.getAge());
+        assertNotNull(postCat.getId());
+        assertEquals(3, postCat.getWeight());
+
+        // Имитация файла изображения
+        byte[] imageBytes = "dummy image content".getBytes(StandardCharsets.UTF_8);
+        MockMultipartFile mockMultipartFile = new MockMultipartFile(
+                "image",
+                "test-image.jpg",
+                "multipart/form-data",
+                imageBytes
+        );
+
+        // Создание сущности ByteArrayResource для RestTemplate
+        Resource resource = new ByteArrayResource(mockMultipartFile.getBytes()) {
+            @Override
+            public String getFilename() {
+                return mockMultipartFile.getOriginalFilename();
+            }
+        };
+
+        // Установка заголовков и тела запроса
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("image", resource);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+        // Отправка POST-запроса с изображением
+        ResponseEntity<String> responseImage = restTemplate.postForEntity("/v3/api/cats/" + postCat.getId() + "/image", requestEntity, String.class, 1L);
+
+        assertEquals(201, responseImage.getStatusCode().value());
+        // Проверка результата
+//        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+    }
+
+    private HibernateCat createCat(String name, int age, int weight) {
+        HibernateCat cat = new HibernateCat();
+        cat.setName(name);
+        cat.setAge(age);
+        cat.setWeight(weight);
+        return cat;
+    }
+
+    private ResponseEntity<HibernateCat> createCatRequest(HibernateCat cat) {
+        HttpEntity<HibernateCat> catEntity = new HttpEntity<>(cat);
+        return restTemplate.exchange(
+                "/v3/api/cats",
+                HttpMethod.POST,
+                catEntity,
+                new ParameterizedTypeReference<HibernateCat>() {
+                }
+        );
     }
 }
