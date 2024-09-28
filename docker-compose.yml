@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+
+  localstack:
+    restart: "no"
+    image: localstack/localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=S3
+      - AWS_REGION=us-east-1
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=000000
+      - AWS_SECRET_ACCESS_KEY=000000000000
+      - DEBUG=1
+  postgres:
+    restart: "no"
+    image: postgres:11.13
+    ports:
+      - "5432:5432"
+    environment:
+      - DEBUG=true
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=catssrv
+    volumes:
+      - ./src/main/resources/Schema_BD.sql:/docker-entrypoint-initdb.d/Schema_BD.sql
+
+  # test:
+  #   build:
+  #     context: .
+  #     target: test
+  #   depends_on:
+  #     - postgres
+  #   environment:
+  #     - PYTHONPATH=:/code
+  #   entrypoint: [ ]
+  #   volumes:
+  #     - ".:/code"
+  #   command:
+  #     - /bin/bash
+  #     - -c
+  #     - |
+  #       set -ex  # exit if one of the commands returns non-zero exit code
+  #       chmod +x /code/wait-for-it.sh
+  #       /code/wait-for-it.sh postgres:5432 -t 30
+  #       cd /code && pytest -v --junitxml=/code/junit-test-results.xml --cov --cov-report=xml:coverage.xml routing_api/tests
+
+

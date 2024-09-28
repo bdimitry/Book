@@ -50,12 +50,10 @@ public class HibernateControllerAutoTest {
 
     @Test
     public void testGetCats() {
-        createCat("Farcuad The Second", 3, 3);
-        createCat("Farcuad The Third", 4, 4);
-
-        HibernateCat[] mockCats = restTemplate.getForObject("/v3/api/cats",
-                HibernateCat[].class);
-
+        HibernateCat cat = createCat("Farcuad The Second", 3, 3);
+        HibernateCat cat2 = createCat("Farcuad The Third", 4, 4);
+        ResponseEntity<HibernateCat> responseFirstCat = createCatRequest(cat);
+        ResponseEntity<HibernateCat> responseSecondCat = createCatRequest(cat2);
         ResponseEntity<List<HibernateCat>> response = restTemplate.exchange(
                 "/v3/api/cats",
                 HttpMethod.GET,
