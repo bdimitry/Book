@@ -26,6 +26,6 @@ public class HibernateCat {
     @Min(value = 0, message = "Age must be a non-negative number")
     private int age;
 
-    @Min(value = 1, message = "Weight must be at least 1 unit")
+    @Min(value = 1, message = "Weight must be at least 1 kilo")
     private int weight;
 }

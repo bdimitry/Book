@@ -15,13 +15,11 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 
 
 @RestController
@@ -120,6 +118,7 @@ public class HibernateController {
             @RequestParam("image") MultipartFile imageFile) {
         logger.info("Uploading image for HibernateCat with ID: {}", id);
         try {
+            if (imageFile.getBytes().length == 0) throw new IOException("Image can't be empty");
             ImageCat image = ImageCat.builder()
                     .id(id)
                     .imageData(imageFile.getBytes())

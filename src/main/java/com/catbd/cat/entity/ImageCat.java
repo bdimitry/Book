@@ -15,7 +15,6 @@ public class ImageCat {
     @Id
     private Long id;
 
-
     @Column(name = "cat_photo", columnDefinition = "BYTEA")
     private byte[] imageData;
 }
