@@ -14,8 +14,13 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +38,9 @@ public class HibernateController {
 
     @Autowired
     private ImageCatRepository imageCatRepository;
+
+    @Autowired
+    private S3Client s3Client;
 
     @GetMapping
     public List<HibernateCat> getAllHibernateCats() {
@@ -118,7 +126,9 @@ public class HibernateController {
             @RequestParam("image") MultipartFile imageFile) {
         logger.info("Uploading image for HibernateCat with ID: {}", id);
         try {
-            if (imageFile.getBytes().length == 0) throw new IOException("Image can't be empty");
+            if (imageFile.isEmpty()) {
+                throw new IOException("Image can't be empty");
+            }
             ImageCat image = ImageCat.builder()
                     .id(id)
                     .imageData(imageFile.getBytes())
@@ -145,5 +155,53 @@ public class HibernateController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    @PostMapping("/{id}/s3image")
+    public ResponseEntity<Object> uploadS3Image(
+            @PathVariable Long id,
+            @RequestParam("image") MultipartFile imageFile) {
+
+        logger.info("Uploading image for HibernateCat with ID: {} to S3", id);
+
+        Optional<HibernateCat> catOptional = hibernateCatRepository.findById(id);
+        if (!catOptional.isPresent()) {
+            logger.warn("HibernateCat with ID: {} not found.", id);
+            return new ResponseEntity<>("Cat not found", HttpStatus.NOT_FOUND);
+        }
+
+        try {
+            if (imageFile.isEmpty()) {
+                logger.warn("Uploaded image is empty");
+                return new ResponseEntity<>("Image can't be empty", HttpStatus.BAD_REQUEST);
+            }
+
+            Region region = Region.EU_NORTH_1;
+            String bucketName = "your-s3-bucket-name";  //не меняю так как никакой бакет не создавал
+            String fileName = "cat-images/" + id;
+
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(fileName)
+//                    .acl("public-read")
+                    .build();
+
+            s3Client.putObject(putObjectRequest, Paths.get(imageFile.getOriginalFilename()));
+
+            String imageUrl = "https://" + bucketName + ".s3." + region.id() + ".amazonaws.com/" + fileName;
+
+            HibernateCat cat = catOptional.get();
+//            cat.setImageUrl(imageUrl);
+            hibernateCatRepository.save(cat);
+
+            logger.info("Image for HibernateCat with ID: {} uploaded successfully to S3 at URL: {}", id, imageUrl);
+            return new ResponseEntity<>("Image uploaded successfully", HttpStatus.CREATED);
+
+        } catch (S3Exception e) {
+            logger.error("Failed to upload image for HibernateCat with ID: {}", id, e);
+            return new ResponseEntity<>("Image upload to S3 failed", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 
 }

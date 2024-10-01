@@ -3,6 +3,7 @@ package com.catbd.cat;
 import com.catbd.cat.Repositories.HibernateCatRepository;
 import com.catbd.cat.controller.HibernateController;
 import com.catbd.cat.entity.HibernateCat;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -20,8 +21,16 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
+import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +56,20 @@ public class HibernateControllerAutoTest {
 
     @Mock
     private HibernateCatRepository hibernateCatRepository;
+
+    @BeforeClass
+    public static void setup() {
+        Region region = Region.EU_NORTH_1;
+        String bucketName = "catsStorage";
+
+        S3Client s3 = S3Client.builder()
+                .endpointOverride(URI.create("http://127.0.0.1:4566"))
+                .region(region)
+                .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create("test", "test")))
+                .build();
+
+        createBucketIfNotExists(s3, bucketName, region);
+    }
 
     @Test
     public void testGetCats() {
@@ -370,6 +393,25 @@ public class HibernateControllerAutoTest {
                 byte[].class
         );
         assertEquals(404, responseGetImageNotFound.getStatusCode().value());
+    }
+
+    private static void createBucketIfNotExists(S3Client s3, String bucketName, Region region) {
+        try {
+            HeadBucketRequest headBucketRequest = HeadBucketRequest.builder().bucket(bucketName).build();
+            s3.headBucket(headBucketRequest);
+            System.out.println("Bucket already exists: " + bucketName);
+        } catch (S3Exception e) {
+            if (e.statusCode() == 404) {
+                CreateBucketRequest createBucketRequest = CreateBucketRequest.builder()
+                        .bucket(bucketName)
+                        .createBucketConfiguration(builder -> builder.locationConstraint(region.id()))
+                        .build();
+                s3.createBucket(createBucketRequest);
+                System.out.println("Bucket created: " + bucketName);
+            } else {
+                throw e;
+            }
+        }
     }
 
     private HibernateCat createCat(String name, int age, int weight) {

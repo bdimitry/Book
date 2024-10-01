@@ -28,4 +28,7 @@ public class HibernateCat {
 
     @Min(value = 1, message = "Weight must be at least 1 kilo")
     private int weight;
+
+//    @Column(name = "image_url")
+//    private String imageUrl;
 }
