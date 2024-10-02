@@ -156,51 +156,7 @@ public class HibernateController {
         }
     }
 
-    @PostMapping("/{id}/s3image")
-    public ResponseEntity<Object> uploadS3Image(
-            @PathVariable Long id,
-            @RequestParam("image") MultipartFile imageFile) {
 
-        logger.info("Uploading image for HibernateCat with ID: {} to S3", id);
-
-        Optional<HibernateCat> catOptional = hibernateCatRepository.findById(id);
-        if (!catOptional.isPresent()) {
-            logger.warn("HibernateCat with ID: {} not found.", id);
-            return new ResponseEntity<>("Cat not found", HttpStatus.NOT_FOUND);
-        }
-
-        try {
-            if (imageFile.isEmpty()) {
-                logger.warn("Uploaded image is empty");
-                return new ResponseEntity<>("Image can't be empty", HttpStatus.BAD_REQUEST);
-            }
-
-            Region region = Region.EU_NORTH_1;
-            String bucketName = "your-s3-bucket-name";  //не меняю так как никакой бакет не создавал
-            String fileName = "cat-images/" + id;
-
-            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(fileName)
-//                    .acl("public-read")
-                    .build();
-
-            s3Client.putObject(putObjectRequest, Paths.get(imageFile.getOriginalFilename()));
-
-            String imageUrl = "https://" + bucketName + ".s3." + region.id() + ".amazonaws.com/" + fileName;
-
-            HibernateCat cat = catOptional.get();
-//            cat.setImageUrl(imageUrl);
-            hibernateCatRepository.save(cat);
-
-            logger.info("Image for HibernateCat with ID: {} uploaded successfully to S3 at URL: {}", id, imageUrl);
-            return new ResponseEntity<>("Image uploaded successfully", HttpStatus.CREATED);
-
-        } catch (S3Exception e) {
-            logger.error("Failed to upload image for HibernateCat with ID: {}", id, e);
-            return new ResponseEntity<>("Image upload to S3 failed", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
 
 
 
