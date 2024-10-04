@@ -60,7 +60,7 @@ public class HibernateControllerAutoTest {
     @BeforeClass
     public static void setup() {
         Region region = Region.EU_NORTH_1;
-        String bucketName = "catsStorage";
+        String bucketName = "catstorage";
 
         S3Client s3 = S3Client.builder()
                 .endpointOverride(URI.create("http://127.0.0.1:4566"))

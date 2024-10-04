@@ -17,3 +17,8 @@
             REFERENCES cats.cat (id)
             ON DELETE CASCADE
     );
+    CREATE TABLE cats.jsonCat (
+    id BIGSERIAL PRIMARY KEY,
+    cat JSONB,
+    image_url VARCHAR(255)
+    );
