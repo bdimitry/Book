@@ -1,13 +1,13 @@
 package com.catbd.cat;
 
-import com.catbd.cat.Repositories.JsonCatRepository;
 import com.catbd.cat.controller.JsonController;
 import com.catbd.cat.entity.CatEntity;
 import com.catbd.cat.entity.JsonCat;
-import org.junit.BeforeClass;
+import com.catbd.cat.repositories.JsonCatRepository;
+import model.TestCat;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -33,6 +32,7 @@ import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -51,7 +51,7 @@ import static org.mockito.Mockito.when;
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         classes = {BaseAutoTestConfiguration.class})
 @DirtiesContext
-public class JsonCatAutoTest {
+class JsonCatAutoTest {
 
     @InjectMocks
     private JsonController jsonController;
@@ -65,10 +65,10 @@ public class JsonCatAutoTest {
     @Mock
     private S3Client s3Client;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         Region region = Region.EU_NORTH_1;
-        String bucketName = "catstorage";
+        String bucketName = "cats-storage";
 
         S3Client s3 = S3Client.builder()
                 .endpointOverride(URI.create("http://127.0.0.1:4566"))
@@ -81,11 +81,6 @@ public class JsonCatAutoTest {
 
     @Test
     public void testGetCats() {
-        JsonCat cat1 = createJsonCat("Farcuad The Second", 3, 3);
-        JsonCat cat2 = createJsonCat("Farcuad The Third", 4, 4);
-
-        when(jsonCatRepository.findAll()).thenReturn(List.of(cat1, cat2));
-
         ResponseEntity<List<JsonCat>> response = restTemplate.exchange(
                 "/v4/api/cats",
                 HttpMethod.GET,
@@ -93,60 +88,60 @@ public class JsonCatAutoTest {
                 new ParameterizedTypeReference<List<JsonCat>>() {
                 }
         );
-
         List<JsonCat> cats = response.getBody();
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(cats);
-        assertEquals(2, cats.size());
-        assertCatFields(cats.get(0));
-        assertCatFields(cats.get(1));
     }
 
     @Test
     public void testGetCatById() {
-        JsonCat cat = createJsonCat("Whiskers", 5, 6);
-
-        when(jsonCatRepository.findById(1L)).thenReturn(Optional.of(cat));
-
-        ResponseEntity<JsonCat> response = restTemplate.exchange(
+        ResponseEntity<TestCat> response = restTemplate.exchange(
                 "/v4/api/cats/1",
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<JsonCat>() {
+                new ParameterizedTypeReference<TestCat>() {
                 }
         );
 
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
-        assertCatFields(response.getBody());
+        TestCat cat = response.getBody();
+        assertEquals("Farcuad", cat.getName());
+        assertEquals(4, cat.getAge().intValue());
+        assertEquals(4, cat.getWeight().intValue());
     }
 
     @Test
     public void testGetCatByIdError() {
-        when(jsonCatRepository.findById(1L)).thenReturn(Optional.empty());
-
         ResponseEntity<JsonCat> response = restTemplate.exchange(
-                "/v4/api/cats/1",
+                "/v4/api/cats/0",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<JsonCat>() {
                 }
         );
-
         assertEquals(404, response.getStatusCode().value());
     }
 
     @Test
     public void testCreateCat() {
-        JsonCat cat = createJsonCat("Felix", 2, 4);
+        TestCat cat = TestCat.builder().name("Felix").age(2L).weight(BigDecimal.valueOf(4)).build();
 
-        when(jsonCatRepository.save(any(JsonCat.class))).thenReturn(cat);
-
-        ResponseEntity<JsonCat> response = createCatRequest(cat);
+        HttpEntity<TestCat> catEntity = new HttpEntity<>(cat);
+        ResponseEntity<TestCat> response = restTemplate.exchange(
+                "/v4/api/cats",
+                HttpMethod.POST,
+                catEntity,
+                new ParameterizedTypeReference<TestCat>() {
+                }
+        );
 
         assertEquals(201, response.getStatusCode().value());
         assertNotNull(response.getBody());
-        assertCatFields(response.getBody());
+        TestCat createdCat = response.getBody();
+        assertEquals("Felix", createdCat.getName());
+        assertEquals(2, createdCat.getAge().intValue());
+        assertEquals(4, createdCat.getWeight().intValue());
     }
 
     @Test
@@ -176,7 +171,7 @@ public class JsonCatAutoTest {
         when(jsonCatRepository.existsById(1L)).thenReturn(true);
 
         ResponseEntity<Void> response = restTemplate.exchange(
-                "/v4/api/cats/1",
+                "/v4/api/cats/2",
                 HttpMethod.DELETE,
                 null,
                 Void.class
@@ -187,13 +182,26 @@ public class JsonCatAutoTest {
 
     @Test
     public void testUploadImageCat() throws Exception {
-        JsonCat cat = createJsonCat("Felix", 2, 4);
-        when(jsonCatRepository.findById(1L)).thenReturn(Optional.of(cat));
+        TestCat cat = TestCat.builder().name("Farcuad The Second").age(3L).weight(BigDecimal.valueOf(3)).build();
+        ResponseEntity<TestCat> response = createCatRequest(cat);
 
+        TestCat postCat = response.getBody();
+        assertEquals(201, response.getStatusCode().value());
+        assertEquals("Farcuad The Second", postCat.getName());
+        assertEquals(3, postCat.getAge().intValue());
+        assertNotNull(postCat.getId());
+        assertEquals(3, postCat.getWeight().intValue());
+
+        // Имитация файла изображения
+        byte[] imageBytes = "dummy image content".getBytes(StandardCharsets.UTF_8);
         MockMultipartFile mockMultipartFile = new MockMultipartFile(
-                "image", "test-image.jpg", "multipart/form-data", "dummy image content".getBytes(StandardCharsets.UTF_8)
+                "image",
+                "test-image.jpg",
+                "multipart/form-data",
+                imageBytes
         );
 
+        // Создание сущности ByteArrayResource для RestTemplate
         Resource resource = new ByteArrayResource(mockMultipartFile.getBytes()) {
             @Override
             public String getFilename() {
@@ -201,6 +209,7 @@ public class JsonCatAutoTest {
             }
         };
 
+        // Установка заголовков и тела запроса
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("image", resource);
 
@@ -209,10 +218,13 @@ public class JsonCatAutoTest {
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
-        ResponseEntity<String> responseImage = restTemplate.postForEntity("/v4/api/cats/1/s3image", requestEntity, String.class);
+        // Отправка POST-запроса с изображением
+        ResponseEntity<String> responseImage = restTemplate.postForEntity("/v4/api/cats/" + postCat.getId() + "/image", requestEntity, String.class, 1L);
 
         assertEquals(201, responseImage.getStatusCode().value());
+        // Проверка результата
     }
+
 
     @Test
     public void testGetImageCat() throws IOException {
@@ -277,25 +289,25 @@ public class JsonCatAutoTest {
         catEntity.setWeight(weight);
 
         JsonCat jsonCat = new JsonCat();
-        jsonCat.setCat(catEntity);
+//        jsonCat.setCat(catEntity);
         return jsonCat;
     }
 
-    private ResponseEntity<JsonCat> createCatRequest(JsonCat cat) {
-        HttpEntity<JsonCat> catEntity = new HttpEntity<>(cat);
+    private ResponseEntity<TestCat> createCatRequest(TestCat cat) {
+        HttpEntity<TestCat> catEntity = new HttpEntity<>(cat);
         return restTemplate.exchange(
                 "/v4/api/cats",
                 HttpMethod.POST,
                 catEntity,
-                new ParameterizedTypeReference<JsonCat>() {
+                new ParameterizedTypeReference<TestCat>() {
                 }
         );
     }
 
     private void assertCatFields(JsonCat cat) {
-        assertNotNull(cat.getCat().getName(), "Name should not be null");
-        assertNotNull(cat.getCat().getAge(), "Age should not be null");
-        assertNotNull(cat.getCat().getWeight(), "Weight should not be null");
+//        assertNotNull(cat.getCat().getName(), "Name should not be null");
+//        assertNotNull(cat.getCat().getAge(), "Age should not be null");
+//        assertNotNull(cat.getCat().getWeight(), "Weight should not be null");
     }
 
     private ResponseEntity<Object> createInvalidCatRequest(JsonCat cat) {

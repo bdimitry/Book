@@ -1,4 +1,4 @@
-package com.catbd.cat.controller;
+package com.catbd.cat.entity;
 
 public class CatDTO {
     private long id;

@@ -11,14 +11,16 @@
 
     CREATE TABLE IF NOT EXISTS "cats"."image"
     (
-            id SERIAL  NOT NULL,
-            cat_photo BYTEA,
-            FOREIGN KEY (id)
-            REFERENCES cats.cat (id)
-            ON DELETE CASCADE
+        id SERIAL  NOT NULL,
+        cat_photo BYTEA,
+        FOREIGN KEY (id)
+        REFERENCES cats.cat (id)
+        ON DELETE CASCADE
     );
-    CREATE TABLE cats.jsonCat (
-    id BIGSERIAL PRIMARY KEY,
-    cat JSONB,
-    image_url VARCHAR(255)
+
+    CREATE TABLE IF NOT EXISTS "cats"."json_cat"
+    (
+        id BIGSERIAL PRIMARY KEY,
+        cat JSONB,
+        image_url VARCHAR(255)
     );

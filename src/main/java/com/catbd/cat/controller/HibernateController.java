@@ -1,7 +1,7 @@
 package com.catbd.cat.controller;
 
-import com.catbd.cat.Repositories.HibernateCatRepository;
-import com.catbd.cat.Repositories.ImageCatRepository;
+import com.catbd.cat.repositories.HibernateCatRepository;
+import com.catbd.cat.repositories.ImageCatRepository;
 import com.catbd.cat.entity.HibernateCat;
 import com.catbd.cat.entity.ImageCat;
 import jakarta.validation.Valid;
