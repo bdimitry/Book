@@ -50,13 +50,13 @@ public class JsonCat {
     @JsonProperty("age")
     public Long getAge() {
         if (cat.get("age") == null) return null;
-        return ((BigDecimal) cat.get("age")).longValue();
+        return ((Number) cat.get("age")).longValue();
     }
 
     @JsonProperty("weight")
     public BigDecimal getWeight() {
         if (cat.get("weight") == null) return null;
-        return (BigDecimal) cat.get("weight");
+        return BigDecimal.valueOf(((Number) cat.get("weight")).doubleValue());
     }
 
     public void setName(String name) {
