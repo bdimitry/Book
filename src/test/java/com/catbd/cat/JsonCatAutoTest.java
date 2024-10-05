@@ -169,10 +169,13 @@ class JsonCatAutoTest {
 
     @Test
     public void testDeleteCat() {
-        when(jsonCatRepository.existsById(1L)).thenReturn(true);
+        TestCat cat = TestCat.builder().name("Farcuad The Second").age(3L).weight(BigDecimal.valueOf(3)).build();
+        ResponseEntity<TestCat> responsePost = createCatRequest(cat);
+
+        TestCat postCat = responsePost.getBody();
 
         ResponseEntity<Void> response = restTemplate.exchange(
-                "/v4/api/cats/2",
+                "/v4/api/cats/" + postCat.getId(),
                 HttpMethod.DELETE,
                 null,
                 Void.class
