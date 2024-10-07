@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -34,6 +35,12 @@ import java.util.stream.Collectors;
 public class JsonController {
 
     private static final Logger logger = LoggerFactory.getLogger(JsonController.class);
+
+    @Value("${aws.s3.region}")
+    private String awsRegion;
+
+    @Value("${aws.s3.bucket-name}")
+    private String awsBucketName;
 
     @Autowired
     private JsonCatRepository jsonCatRepository;
@@ -161,8 +168,9 @@ public class JsonController {
             }
 
             try {
-                Region region = Region.EU_NORTH_1; //TODO: take region from config
-                String bucketName = "cats-storage";//TODO: get bucket name properties
+
+                Region region = Region.of(awsRegion);
+                String bucketName = awsBucketName;
                 String fileName = "cat-images/" + id;
 
                 PutObjectRequest putObjectRequest = PutObjectRequest.builder()
@@ -205,9 +213,9 @@ public class JsonController {
         }
 
         try {
-            String bucketName = "cats-storage";
+            Region region = Region.of(awsRegion);
+            String bucketName = awsBucketName;
             String fileName = "cat-images/" + id;
-            Region region = Region.EU_NORTH_1;
 
             String imageUrl = "https://" + bucketName + ".s3." + region.id() + ".amazonaws.com/" + fileName;
 
