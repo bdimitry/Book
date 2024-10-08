@@ -4,13 +4,12 @@ package com.catbd.cat.entity;
 import lombok.*;
 
 @Data
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class CatEntity {
-    private int id;
+    private Long id;
     private String name;
     private int age;
-    private int weight;
+    private double weight;
 }
+

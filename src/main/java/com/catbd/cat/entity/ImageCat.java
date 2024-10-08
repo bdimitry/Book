@@ -5,21 +5,20 @@ import lombok.*;
 
 @Entity
 @Table(name = "image", schema = "cats")
-@Getter
-@Setter
+@Data
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class ImageCat {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Lob
+//    @Lob
     @Column(name = "cat_photo", columnDefinition = "BYTEA")
     private byte[] imageData;
 
-    @OneToOne
-    @JoinColumn(name = "id", referencedColumnName = "id", insertable = false, updatable = false)
-    private HibernateCat hibernateCat;
+//    @OneToOne TODO: Try to use this instead of Id field above
+//    @JoinColumn(name = "id", referencedColumnName = "id", insertable = false, updatable = false)
+//    private HibernateCat hibernateCat;
 }

@@ -1,7 +1,7 @@
 package com.catbd.cat;
 
-import com.catbd.cat.Repositories.HibernateCatRepository;
-import com.catbd.cat.Repositories.ImageCatRepository;
+import com.catbd.cat.repositories.HibernateCatRepository;
+import com.catbd.cat.repositories.ImageCatRepository;
 import com.catbd.cat.controller.HibernateController;
 import com.catbd.cat.entity.HibernateCat;
 import org.junit.jupiter.api.BeforeEach;
