@@ -24,6 +24,7 @@ import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -151,7 +152,6 @@ public class JsonController {
         }
     }
 
-
     @PostMapping("/{id}/image")
     public ResponseEntity<String> uploadS3Image(@PathVariable Long id, @RequestParam("image") MultipartFile imageFile) {
         logger.info("Uploading image for JsonCat with ID: {} to S3", id);
@@ -170,17 +170,16 @@ public class JsonController {
             try {
 
                 Region region = Region.of(awsRegion);
-                String bucketName = awsBucketName;
                 String fileName = "cat-images/" + id;
 
                 PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                        .bucket(bucketName)
+                        .bucket(awsBucketName)
                         .key(fileName)
                         .build();
 
                 s3Client.putObject(putObjectRequest, RequestBody.fromBytes(imageFile.getBytes()));
 
-                String imageUrl = "https://" + bucketName + ".s3." + region.id() + ".amazonaws.com/" + fileName;
+                String imageUrl = "https://" + awsBucketName + ".s3." + region.id() + ".amazonaws.com/" + fileName;
 
                 cat.setImageUrl(imageUrl);
                 jsonCatRepository.save(cat);
@@ -199,7 +198,6 @@ public class JsonController {
         });
     }
 
-
     // Получить изображение для кота из S3
     @GetMapping("/{id}/image")
     public ResponseEntity<Object> getImageCat(@PathVariable Long id) {
@@ -213,17 +211,12 @@ public class JsonController {
         }
 
         try {
-            Region region = Region.of(awsRegion);
-            String bucketName = awsBucketName;
             String fileName = "cat-images/" + id;
 
-            String imageUrl = "https://" + bucketName + ".s3." + region.id() + ".amazonaws.com/" + fileName;
-
             GetObjectRequest objectRequest = GetObjectRequest.builder()
-                    .bucket(bucketName)
+                    .bucket(awsBucketName)
                     .key(fileName)
                     .build();
-
             try {
                 ResponseInputStream<GetObjectResponse> s3Image = s3Client.getObject(objectRequest);
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -232,7 +225,7 @@ public class JsonController {
                 while ((len = s3Image.read(buffer)) != -1) {
                     byteArrayOutputStream.write(buffer, 0, len);
                 }
-
+                logger.info("Image for JsonCat with ID: {} fetched successfully",id);
                 return new ResponseEntity<>(byteArrayOutputStream.toByteArray(), HttpStatus.OK);
             } catch (NoSuchKeyException e) {
                 logger.warn("Image for JsonCat with ID: {} not found on S3", id);
@@ -240,14 +233,23 @@ public class JsonController {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-
-//            logger.info("Image for JsonCat with ID: {} fetched successfully from S3 at URL: {}", id, imageUrl);
-//            return ResponseEntity.ok(imageUrl);
-
         } catch (S3Exception e) {
             logger.error("Failed to fetch image for JsonCat with ID: {}", id, e);
             return new ResponseEntity<>("Failed to retrieve image from S3", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    // Получить котов по возрасту
+    @GetMapping("/by-age")
+    public List<JsonCat> getCatsByAge(@RequestParam int age) {
+        logger.info("Fetching cats with age: {}", age);
+        return jsonCatRepository.findByAge(age);
+    }
+
+    // Получить котов по весу
+    @GetMapping("/by-weight")
+    public List<JsonCat> getCatsByWeight(@RequestParam BigDecimal weight) {
+        logger.info("Fetching cats with weight: {}", weight);
+        return jsonCatRepository.findByWeight(weight);
+    }
 }

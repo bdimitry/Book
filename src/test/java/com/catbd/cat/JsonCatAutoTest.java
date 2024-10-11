@@ -2,7 +2,6 @@ package com.catbd.cat;
 
 import com.catbd.cat.controller.JsonController;
 import com.catbd.cat.entity.CatEntity;
-import com.catbd.cat.entity.HibernateCat;
 import com.catbd.cat.entity.JsonCat;
 import com.catbd.cat.repositories.JsonCatRepository;
 import model.TestCat;
@@ -82,14 +81,14 @@ class JsonCatAutoTest {
 
     @Test
     public void testGetCats() {
-        ResponseEntity<List<JsonCat>> response = restTemplate.exchange(
+        ResponseEntity<List<TestCat>> response = restTemplate.exchange(
                 "/v4/api/cats",
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<List<JsonCat>>() {
+                new ParameterizedTypeReference<List<TestCat>>() {
                 }
         );
-        List<JsonCat> cats = response.getBody();
+        List<TestCat> cats = response.getBody();
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(cats);
     }
@@ -230,6 +229,51 @@ class JsonCatAutoTest {
     }
 
     @Test
+    void testUploadInvalidImageCat() throws Exception {
+        TestCat cat = TestCat.builder().name("Farcuad The Second").age(3L).weight(BigDecimal.valueOf(3)).build();
+        ResponseEntity<TestCat> response = createCatRequest(cat);
+
+        TestCat postCat = response.getBody();
+        assertEquals(201, response.getStatusCode().value());
+        assertEquals("Farcuad The Second", postCat.getName());
+        assertEquals(3, postCat.getAge().intValue());
+        assertNotNull(postCat.getId());
+        assertEquals(3, postCat.getWeight().intValue());
+
+        // Имитация файла изображения
+        byte[] imageBytes = "dummy image content".getBytes(StandardCharsets.UTF_8);
+        MockMultipartFile mockMultipartFile = new MockMultipartFile(
+                "image",
+                "test-image.jpg",
+                "multipart/form-data",
+                new byte[0]
+        );
+
+        // Создание сущности ByteArrayResource для RestTemplate
+        Resource resource = new ByteArrayResource(mockMultipartFile.getBytes()) {
+            @Override
+            public String getFilename() {
+                return mockMultipartFile.getOriginalFilename();
+            }
+        };
+
+        // Установка заголовков и тела запроса
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("image", resource);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+        // Отправка POST-запроса с изображением
+        ResponseEntity<String> responseImage = restTemplate.postForEntity("/v3/api/cats/" + postCat.getId() + "/image", requestEntity, String.class, 1L);
+
+        assertEquals(500, responseImage.getStatusCode().value());
+        // Проверка результата
+    }
+
+    @Test
     public void testGetImageCat() throws IOException {
         TestCat cat = TestCat.builder().name("Farcuad The Second").age(3L).weight(BigDecimal.valueOf(3)).build();
         ResponseEntity<TestCat> response = createCatRequest(cat);
@@ -297,7 +341,7 @@ class JsonCatAutoTest {
         assertNotNull(responseGetImage.getBody());
         assertArrayEquals(imageBytes, responseGetImage.getBody());
 
-        // TODO: extract to separate test
+
         ResponseEntity<byte[]> responseGetImageNotFound = restTemplate.exchange(
                 "/v4/api/cats/99999/image",
                 HttpMethod.GET,
@@ -305,6 +349,32 @@ class JsonCatAutoTest {
                 byte[].class
         );
         assertEquals(404, responseGetImageNotFound.getStatusCode().value());
+    }
+
+    @Test
+    public void testGetCatByWeight(){
+        ResponseEntity<List<TestCat>> response = restTemplate.exchange(
+                "/v4/api/cats/by-weight?weight=9",
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<TestCat>>() {
+                }
+        );
+        List<TestCat> cats = response.getBody();
+        assertEquals(200, response.getStatusCode().value());
+    }
+
+    @Test
+    public void testGetCatByAge(){
+        ResponseEntity<List<TestCat>> response = restTemplate.exchange(
+                "/v4/api/cats/by-age?age=2",
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<TestCat>>() {
+                }
+        );
+        List<TestCat> cats = response.getBody();
+        assertEquals(200, response.getStatusCode().value());
     }
 
     private static void createBucketIfNotExists(S3Client s3, String bucketName, Region region) {

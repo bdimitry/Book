@@ -11,10 +11,8 @@ import lombok.*;
 @AllArgsConstructor
 public class ImageCat {
     @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @Lob
     @Column(name = "cat_photo", columnDefinition = "BYTEA")
     private byte[] imageData;
 

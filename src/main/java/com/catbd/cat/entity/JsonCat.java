@@ -30,9 +30,6 @@ public class JsonCat {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
-//    @JsonProperty("cat")
-//    @Convert(converter = JsonbConverter.class)
-//    private CatEntity cat;
     @JsonIgnore
     private Map<String, Object> cat = new HashMap();
 
