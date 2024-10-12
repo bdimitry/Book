@@ -352,7 +352,7 @@ class JsonCatAutoTest {
     }
 
     @Test
-    public void testGetCatByWeight(){
+    public void testGetCatsFilteredByWeight() {
         ResponseEntity<List<TestCat>> response = restTemplate.exchange(
                 "/v4/api/cats/by-weight?weight=9",
                 HttpMethod.GET,
@@ -365,7 +365,7 @@ class JsonCatAutoTest {
     }
 
     @Test
-    public void testGetCatByAge(){
+    public void testGetCatsFilteredByAge() {
         ResponseEntity<List<TestCat>> response = restTemplate.exchange(
                 "/v4/api/cats/by-age?age=2",
                 HttpMethod.GET,
