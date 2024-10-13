@@ -3,6 +3,7 @@ package com.catbd.cat.controller;
 import com.catbd.cat.entity.CatDTO;
 import com.catbd.cat.entity.CatEntity;
 import com.catbd.cat.entity.JsonCat;
+import com.catbd.cat.filtering.RsqlFilter;
 import com.catbd.cat.repositories.ImageCatRepository;
 import com.catbd.cat.repositories.JsonCatRepository;
 import jakarta.validation.Valid;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -50,6 +52,9 @@ public class JsonController {
     private ImageCatRepository imageCatRepository;
 
     @Autowired
+    private RsqlFilter rsqlFilter;
+
+    @Autowired
     private S3Client s3Client;
 
     // Преобразование JsonCat в CatDTO
@@ -66,7 +71,7 @@ public class JsonController {
     }
 
     // Получить всех котов
-    @GetMapping
+    @GetMapping("/allCats")
     public List<CatDTO> getAllHibernateCats() {
         logger.info("Fetching all HibernateCat records.");
         return jsonCatRepository.findAll().stream()
@@ -225,7 +230,7 @@ public class JsonController {
                 while ((len = s3Image.read(buffer)) != -1) {
                     byteArrayOutputStream.write(buffer, 0, len);
                 }
-                logger.info("Image for JsonCat with ID: {} fetched successfully",id);
+                logger.info("Image for JsonCat with ID: {} fetched successfully", id);
                 return new ResponseEntity<>(byteArrayOutputStream.toByteArray(), HttpStatus.OK);
             } catch (NoSuchKeyException e) {
                 logger.warn("Image for JsonCat with ID: {} not found on S3", id);
@@ -251,5 +256,11 @@ public class JsonController {
     public List<JsonCat> getCatsByWeight(@RequestParam BigDecimal weight) {
         logger.info("Fetching cats with weight: {}", weight);
         return jsonCatRepository.findByWeight(weight);
+    }
+
+    @GetMapping("/filter")
+    public List<JsonCat> getEntities(@RequestParam(value = "filter", required = false) String rsqlQuery) {
+        Specification<JsonCat> specification = rsqlFilter.parseRSQL(rsqlQuery);
+        return jsonCatRepository.findAll(specification);
     }
 }

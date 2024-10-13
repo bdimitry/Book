@@ -2,25 +2,26 @@
 
 This project is simple simulation of REST service and it's evolution made by 1 student.
 
-### Tech Info
+### File links
 
-* Tables and Objects that added in db during docker compose start can be checked in Initdb1 & Initdb2 respectively.
-* AWS info for tests contained in application.properties
+* [Initdb1.sql](src/main/resources/Initdb1.sql)
+* [Initdb2.sql](src/main/resources/Initdb2.sql)
+* [Rsql Logic](src/main/resources/rsqlLogic)
+
+### Version info
+
 * V1 In Memory save
 * V2 In DB save
 * V3 In DB save with Hibernate Usage
 * V4 JsonB and S3 for image
-* To find object witch in our case is Cat by weight/age you need to insert in url by-age?age=(any number) or
-  by-weight?weight=(any number)
 
 ### Reference Documentation
 
 For further reference, please consider the following sections:
 
 * [Official Apache Maven documentation](https://maven.apache.org/guides/index.html)
-* [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/docs/3.3.2/maven-plugin/reference/html/)
-* [Create an OCI image](https://docs.spring.io/spring-boot/docs/3.3.2/maven-plugin/reference/html/#build-image)
-* [Spring Web](https://docs.spring.io/spring-boot/docs/3.3.2/reference/htmlsingle/index.html#web)
+* [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/docs/3.1.3/maven-plugin/reference/htmlsingle/)
+* [Spring Web](https://spring.io/projects/spring-ws)
 
 ### Guides
 

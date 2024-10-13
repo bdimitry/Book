@@ -82,7 +82,7 @@ class JsonCatAutoTest {
     @Test
     public void testGetCats() {
         ResponseEntity<List<TestCat>> response = restTemplate.exchange(
-                "/v4/api/cats",
+                "/v4/api/cats/allCats",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<List<TestCat>>() {
@@ -368,6 +368,19 @@ class JsonCatAutoTest {
     public void testGetCatsFilteredByAge() {
         ResponseEntity<List<TestCat>> response = restTemplate.exchange(
                 "/v4/api/cats/by-age?age=2",
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<TestCat>>() {
+                }
+        );
+        List<TestCat> cats = response.getBody();
+        assertEquals(200, response.getStatusCode().value());
+    }
+
+    @Test
+    public void testGetCatsFilteredByRsql() {
+        ResponseEntity<List<TestCat>> response = restTemplate.exchange(
+                "/v4/api/cats/filter?filter=cat.weight=gt=1;age=gt=1",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<List<TestCat>>() {

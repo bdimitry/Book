@@ -1,6 +1,5 @@
 package com.catbd.cat.entity;
 
-import com.catbd.cat.entity.conventer.JsonbConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
