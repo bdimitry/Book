@@ -82,7 +82,7 @@ class JsonCatAutoTest {
     @Test
     public void testGetCats() {
         ResponseEntity<List<TestCat>> response = restTemplate.exchange(
-                "/v4/api/cats/allCats",
+                "/v4/api/cats",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<List<TestCat>>() {
@@ -380,7 +380,7 @@ class JsonCatAutoTest {
     @Test
     public void testGetCatsFilteredByRsql() {
         ResponseEntity<List<TestCat>> response = restTemplate.exchange(
-                "/v4/api/cats/filter?filter=cat.weight=gt=1;age=gt=1",
+                "/v4/api/cats/filter?filter=name==John",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<List<TestCat>>() {
@@ -388,6 +388,10 @@ class JsonCatAutoTest {
         );
         List<TestCat> cats = response.getBody();
         assertEquals(200, response.getStatusCode().value());
+        for(TestCat cat : cats){
+            assertTrue(cat.getWeight().floatValue() >= 6);
+            assertTrue(cat.getAge().intValue() >= 3);
+        }
     }
 
     private static void createBucketIfNotExists(S3Client s3, String bucketName, Region region) {

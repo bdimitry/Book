@@ -1,9 +1,7 @@
 package com.catbd.cat.controller;
 
 import com.catbd.cat.entity.CatDTO;
-import com.catbd.cat.entity.CatEntity;
 import com.catbd.cat.entity.JsonCat;
-import com.catbd.cat.filtering.RsqlFilter;
 import com.catbd.cat.repositories.ImageCatRepository;
 import com.catbd.cat.repositories.JsonCatRepository;
 import jakarta.validation.Valid;
@@ -11,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -24,6 +21,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
+import static io.github.perplexhub.rsql.RSQLJPASupport.toSpecification;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -31,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/v4/api/cats")
@@ -52,31 +49,16 @@ public class JsonController {
     private ImageCatRepository imageCatRepository;
 
     @Autowired
-    private RsqlFilter rsqlFilter;
-
-    @Autowired
     private S3Client s3Client;
 
-    // Преобразование JsonCat в CatDTO
-    private CatDTO convertToDTO(JsonCat jsonCat) {
-//        CatEntity catEntity = jsonCat.getCat();
-//        return new CatDTO(jsonCat.getId(), catEntity.getName(), catEntity.getAge(), catEntity.getWeight(), jsonCat.getImageUrl());
-        return new CatDTO(jsonCat.getId(), null, 0, 1, jsonCat.getImageUrl());
-    }
-
-    // Преобразование CatDTO в JsonCat
-    private JsonCat convertToEntity(CatDTO catDTO) {
-        CatEntity catEntity = new CatEntity(catDTO.getId(), catDTO.getName(), catDTO.getAge(), catDTO.getWeight());
-        return new JsonCat(catDTO.getId(), null, catDTO.getImageUrl());
-    }
-
     // Получить всех котов
-    @GetMapping("/allCats")
-    public List<CatDTO> getAllHibernateCats() {
+    @GetMapping
+    public List<JsonCat> getAllHibernateCats() {
         logger.info("Fetching all HibernateCat records.");
-        return jsonCatRepository.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        String filter = "weight=gt=1;age=gt=1";
+        Map<String, String> propertyPathMapper = new HashMap<>();
+        jsonCatRepository.findAll(toSpecification(filter, propertyPathMapper));
+        return jsonCatRepository.findAll();
     }
 
     // Получить кота по ID
@@ -134,13 +116,12 @@ public class JsonController {
         }
 
         JsonCat existingCat = existingCatOptional.get();
-//        existingCat.setCat(new CatEntity(catDTO.getId(), catDTO.getName(), catDTO.getAge(), catDTO.getWeight()));
         existingCat.setImageUrl(catDTO.getImageUrl());
 
         JsonCat updatedCat = jsonCatRepository.save(existingCat);
         logger.info("JsonCat with ID: {} updated successfully.", id);
 
-        return new ResponseEntity<>(convertToDTO(updatedCat), HttpStatus.OK);
+        return new ResponseEntity<>(updatedCat, HttpStatus.OK);
     }
 
     // Удалить кота по ID
@@ -186,7 +167,7 @@ public class JsonController {
 
                 String imageUrl = "https://" + awsBucketName + ".s3." + region.id() + ".amazonaws.com/" + fileName;
 
-                cat.setImageUrl(imageUrl);
+//                cat.setImageUrl(imageUrl);
                 jsonCatRepository.save(cat);
 
                 logger.info("Image for JsonCat with ID: {} uploaded successfully to S3 at URL: {}", id, imageUrl);
@@ -258,9 +239,6 @@ public class JsonController {
         return jsonCatRepository.findByWeight(weight);
     }
 
-    @GetMapping("/filter")
-    public List<JsonCat> getEntities(@RequestParam(value = "filter", required = false) String rsqlQuery) {
-        Specification<JsonCat> specification = rsqlFilter.parseRSQL(rsqlQuery);
-        return jsonCatRepository.findAll(specification);
-    }
+
+
 }

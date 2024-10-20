@@ -1,5 +1,6 @@
 package com.catbd.cat.entity;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -22,6 +23,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class JsonCat {
 
+    // TODO: add validation
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonProperty("id")
@@ -30,7 +32,7 @@ public class JsonCat {
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     @JsonIgnore
-    private Map<String, Object> cat = new HashMap();
+    private String cat;
 
     @Column(name = "image_url")
     @JsonProperty("imageUrl")
@@ -39,35 +41,39 @@ public class JsonCat {
     // Геттеры и сеттеры
     @JsonProperty("name")
     public String getName() {
-        if (cat.get("name") == null) return null;
-        return cat.get("name").toString();
+//        if (cat.get("name") == null) return null;
+return null;
+//        return cat.get("name").toString();
     }
 
     @JsonProperty("age")
     public Long getAge() {
-        if (cat.get("age") == null) return null;
-        return ((Number) cat.get("age")).longValue();
+//        if (cat.get("age") == null) return null;
+        return null;
+//        return ((Number) cat.get("age")).longValue();
     }
 
     @JsonProperty("weight")
     public BigDecimal getWeight() {
-        if (cat.get("weight") == null) return null;
-        return BigDecimal.valueOf(((Number) cat.get("weight")).doubleValue());
+        return null;
+        //        if (cat.get("weight") == null) return null;
+//        return BigDecimal.valueOf(((Number) cat.get("weight")).doubleValue());
     }
 
     public void setName(String name) {
-        if (name == null) return;
-        cat.put("name", name);
+//        if (name == null) return;
+//        cat.put("name", name);
     }
 
     public void setAge(Long age) {
-        if (age == null) return;
-        cat.put("age", BigDecimal.valueOf(age));
+//        if (age == null) return;
+//        cat.put("age", BigDecimal.valueOf(age));
     }
 
     public void setWeight(BigDecimal weight) {
-        if (weight == null) return;
-        cat.put("weight", weight);
+//        if (weight == null) return;
+//        cat.put("weight", weight);
     }
 }
+
 

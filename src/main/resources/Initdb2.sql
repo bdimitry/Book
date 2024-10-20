@@ -1,10 +1,34 @@
 SET search_path TO cats;
 
 INSERT INTO cats.cat (name, age, weight)
-VALUES ('Tom', 3, 4);
+VALUES ('Farcuad', 4, 4);
 
 INSERT INTO cats.cat (name, age, weight)
-VALUES ('Jerry', 4, 5);
+VALUES ('John', 3, 6);
+
+INSERT INTO cats.cat (name, age, weight)
+VALUES ('Marvel', 5, 9);
+
+INSERT INTO cats.cat (name, age, weight)
+VALUES ('Funtick', 1, 2);
+
+INSERT INTO cats.cat (name, age, weight)
+VALUES ('Alex', 3, 3);
+
+INSERT INTO cats.cat (name, age, weight)
+VALUES ('Jerry', 8, 9);
+
+INSERT INTO cats.cat (name, age, weight)
+VALUES ('Tom', 2, 3);
+
+INSERT INTO cats.cat (name, age, weight)
+VALUES ('Aunkere', 4, 4);
+
+INSERT INTO cats.cat (name, age, weight)
+VALUES ('Zhlob', 5, 4);
+
+INSERT INTO cats.cat (name, age, weight)
+VALUES ('Andrey', 3, 4);
 
 INSERT INTO cats.json_cat (cat)
 VALUES ('{"name": "Farcuad", "age": 4, "weight": 4 }');

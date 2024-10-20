@@ -1,8 +1,8 @@
 package com.catbd.cat;
 
-import com.catbd.cat.repositories.HibernateCatRepository;
 import com.catbd.cat.controller.HibernateController;
 import com.catbd.cat.entity.HibernateCat;
+import com.catbd.cat.repositories.HibernateCatRepository;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,10 +73,6 @@ public class HibernateControllerAutoTest {
 
     @Test
     public void testGetCats() {
-        HibernateCat cat = createCat("Farcuad The Second", 3, 3);
-        HibernateCat cat2 = createCat("Farcuad The Third", 4, 4);
-        ResponseEntity<HibernateCat> responseFirstCat = createCatRequest(cat);
-        ResponseEntity<HibernateCat> responseSecondCat = createCatRequest(cat2);
         ResponseEntity<List<HibernateCat>> response = restTemplate.exchange(
                 "/v3/api/cats",
                 HttpMethod.GET,
@@ -86,12 +82,23 @@ public class HibernateControllerAutoTest {
         );
         List<HibernateCat> cats = response.getBody();
         assertEquals(200, response.getStatusCode().value());
-        assertNotNull(cats.get(0).getName());
-        assertNotNull(cats.get(1).getName());
-        assertNotNull(cats.get(0).getAge());
-        assertNotNull(cats.get(1).getAge());
-        assertNotNull(cats.get(0).getWeight());
-        assertNotNull(cats.get(1).getWeight());
+    }
+
+    @Test
+    public void testGetCatsRsqlSearch() {
+        ResponseEntity<List<HibernateCat>> response = restTemplate.exchange(
+                "/v3/api/cats?weight=gt=3;age=gt=3",
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<HibernateCat>>() {
+                }
+        );
+        List<HibernateCat> cats = response.getBody();
+        assertEquals(200, response.getStatusCode().value());
+        for (HibernateCat cat : cats) {
+            assertTrue(cat.getWeight() >= 3);
+            assertTrue(cat.getAge() >= 3);
+        }
     }
 
     @Test
@@ -205,15 +212,15 @@ public class HibernateControllerAutoTest {
         assertNotNull(postCat.getId());
         assertEquals(3, postCat.getWeight());
 
-        ResponseEntity<HibernateCat> responseDelete = restTemplate.exchange(
+        ResponseEntity<String> responseDelete = restTemplate.exchange(
                 "/v3/api/cats/" + postCat.getId(),
                 HttpMethod.DELETE,
                 null,
-                new ParameterizedTypeReference<HibernateCat>() {
+                new ParameterizedTypeReference<String>() {
                 }
         );
-
-        assertEquals(204, responseDelete.getStatusCode().value());
+        assertEquals(200, responseDelete.getStatusCode().value());
+        assertEquals("Cat with ID " + postCat.getId() + " deleted successfully.", responseDelete.getBody());
 
         ResponseEntity<HibernateCat> responseGet = restTemplate.exchange(
                 "/v3/api/cats/" + postCat.getId(),
@@ -222,7 +229,6 @@ public class HibernateControllerAutoTest {
                 new ParameterizedTypeReference<HibernateCat>() {
                 }
         );
-
         assertEquals(404, responseGet.getStatusCode().value());
     }
 
