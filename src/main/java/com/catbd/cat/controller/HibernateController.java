@@ -41,7 +41,7 @@ public class HibernateController {
     private GetAllHibernateCatsService getAllHibernateCatsService;
 
     @Autowired
-    private CreateHibernateCatService createHibernateCatService;
+    private CatService createHibernateCatService;
 
     @Autowired
     private UpdateHibernateCatService updateHibernateCatService;
