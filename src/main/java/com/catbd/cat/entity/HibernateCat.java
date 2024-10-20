@@ -13,7 +13,7 @@ import lombok.*;
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class HibernateCat {
+public class HibernateCat implements CatI{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

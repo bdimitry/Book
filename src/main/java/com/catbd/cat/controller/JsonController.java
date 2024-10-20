@@ -1,5 +1,6 @@
 package com.catbd.cat.controller;
 
+import com.catbd.cat.controller.service.hibernate.CatService;
 import com.catbd.cat.entity.CatDTO;
 import com.catbd.cat.entity.JsonCat;
 import com.catbd.cat.repositories.ImageCatRepository;
@@ -8,6 +9,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,6 +46,9 @@ public class JsonController {
 
     @Autowired
     private JsonCatRepository jsonCatRepository;
+
+    @Autowired @Qualifier("jsonCatService")
+    private CatService createHibernateCatService;
 
     @Autowired
     private ImageCatRepository imageCatRepository;

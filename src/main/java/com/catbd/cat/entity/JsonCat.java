@@ -21,7 +21,7 @@ import java.util.Map;
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class JsonCat {
+public class JsonCat implements CatI {
 
     // TODO: add validation
     @Id
