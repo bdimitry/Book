@@ -2,7 +2,6 @@ package com.catbd.cat.controller;
 
 import com.catbd.cat.controller.service.hibernate.*;
 import com.catbd.cat.entity.HibernateCat;
-import com.catbd.cat.entity.ImageCat;
 import com.catbd.cat.repositories.HibernateCatRepository;
 import com.catbd.cat.repositories.ImageCatRepository;
 import jakarta.validation.Valid;
@@ -15,13 +14,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.S3Exception;
 
-import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,25 +29,7 @@ public class HibernateController {
     private static final Logger logger = LoggerFactory.getLogger(HibernateController.class);
 
     @Autowired
-    private GetImageCatService getImageCatService;
-
-    @Autowired
-    private GetAllHibernateCatsService getAllHibernateCatsService;
-
-    @Autowired
-    private CreateHibernateCatService createHibernateCatService;
-
-    @Autowired
-    private UpdateHibernateCatService updateHibernateCatService;
-
-    @Autowired
-    private DeleteHibernateCatService deleteHibernateCatService;
-
-    @Autowired
-    private GetHibernateCatByIdService getHibernateCatByIdService;
-
-    @Autowired
-    private CreateImageCatService createImageCatService;
+    private HibernateCatService hibernateCatService;
 
     @Autowired
     private HibernateCatRepository hibernateCatRepository;
@@ -66,7 +42,7 @@ public class HibernateController {
 
     @GetMapping
     public List<HibernateCat> getAllHibernateCats(@RequestParam(value = "weight", required = false) Double weight, @RequestParam(value = "age", required = false) Integer age) {
-        return getAllHibernateCatsService.getAllHibernateCats(weight, age);
+        return hibernateCatService.getAllHibernateCats(weight, age);
     }
 
     @GetMapping("/{id}")
@@ -88,7 +64,7 @@ public class HibernateController {
             }
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
-        HibernateCat savedCat = createHibernateCatService.createHibernateCat(cat);
+        HibernateCat savedCat = hibernateCatService.createHibernateCat(cat);
         return new ResponseEntity<>(savedCat, HttpStatus.CREATED);
     }
 
@@ -98,15 +74,15 @@ public class HibernateController {
 
         if (bindingResult.hasErrors()) {
             logger.warn("Validation errors occurred while updating HibernateCat with ID: {}", id);
-            Map<String, String> errors = updateHibernateCatService.validateBindingResult(bindingResult);
+            Map<String, String> errors = hibernateCatService.validateBindingResult(bindingResult);
             errors.forEach((field, message) -> logger.warn("Validation error in field '{}': {}", field, message));
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
 
-        Optional<HibernateCat> existingCatOpt = updateHibernateCatService.findById(id);
+        Optional<HibernateCat> existingCatOpt = hibernateCatService.findById(id);
         if (existingCatOpt.isPresent()) {
             HibernateCat existingCat = existingCatOpt.get();
-            HibernateCat updatedCatEntity = updateHibernateCatService.updateExistingCat(existingCat, updatedCat);
+            HibernateCat updatedCatEntity = hibernateCatService.updateExistingCat(existingCat, updatedCat);
             logger.info("HibernateCat with ID: {} updated successfully.", id);
             return new ResponseEntity<>(updatedCatEntity, HttpStatus.OK);
         } else {
@@ -117,7 +93,7 @@ public class HibernateController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteHibernateCat(@PathVariable Long id) {
-        Optional<HibernateCat> deletedCat = deleteHibernateCatService.deleteCat(id);
+        Optional<HibernateCat> deletedCat = hibernateCatService.deleteCat(id);
         if (deletedCat.isPresent()) {
             logger.info("HibernateCat with ID: {} deleted successfully.", id);
             return new ResponseEntity<>("Cat with ID " + id + " deleted successfully.", HttpStatus.OK);
@@ -129,11 +105,11 @@ public class HibernateController {
 
     @PostMapping("/{id}/image")
     public ResponseEntity<Object> createImageCat(@PathVariable Long id, @RequestParam("image") MultipartFile imageFile) {
-        return createImageCatService.createImageCat(id, imageFile);
+        return hibernateCatService.createImageCat(id, imageFile);
     }
 
     @GetMapping("/{id}/image")
     public ResponseEntity<byte[]> getImageCat(@PathVariable Long id) {
-        return getImageCatService.getImageCat(id);
+        return hibernateCatService.getImageCat(id);
     }
 }

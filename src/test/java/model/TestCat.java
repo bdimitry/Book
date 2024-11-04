@@ -1,5 +1,6 @@
 package model;
 
+import jakarta.persistence.Entity;
 import lombok.*;
 
 import java.math.BigDecimal;

@@ -9,7 +9,7 @@ import lombok.*;
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class ImageCat {
+public class ImageCat  {
     @Id
     private Long id;
 

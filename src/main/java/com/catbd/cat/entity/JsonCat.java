@@ -12,8 +12,6 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 
 @Entity
 @Table(name = "json_cat", schema = "cats")
@@ -42,7 +40,7 @@ public class JsonCat {
     @JsonProperty("name")
     public String getName() {
 //        if (cat.get("name") == null) return null;
-return null;
+        return null;
 //        return cat.get("name").toString();
     }
 
