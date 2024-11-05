@@ -87,7 +87,7 @@ public class HibernateControllerAutoTest {
     @Test
     public void testGetCatsRsqlSearch() {
         ResponseEntity<List<HibernateCat>> response = restTemplate.exchange(
-                "/v3/api/cats?weight=gt=3;age=gt=3",
+                "/v3/api/cats?weight=3&age=3",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<List<HibernateCat>>() {

@@ -47,7 +47,7 @@ public class JsonController {
     @Autowired
     private JsonCatRepository jsonCatRepository;
 
-    @Autowired @Qualifier("jsonCatService")
+    @Autowired
     private CatService createHibernateCatService;
 
 

@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
-public class HibernateCatService {
+public class HibernateCatService implements CatService {
 
     @Autowired
     private HibernateCatRepository hibernateCatRepository;
