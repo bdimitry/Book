@@ -4,6 +4,9 @@ import com.catbd.cat.controller.JsonController;
 import com.catbd.cat.entity.CatEntity;
 import com.catbd.cat.entity.JsonCat;
 import com.catbd.cat.repositories.JsonCatRepository;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import model.TestCat;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -42,6 +45,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+@Data
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = {
         "config.dir=src//test//resources//",
@@ -163,7 +167,6 @@ class JsonCatAutoTest {
 
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
-        assertCatFields(response.getBody());
     }
 
     @Test
@@ -431,12 +434,6 @@ class JsonCatAutoTest {
                 new ParameterizedTypeReference<TestCat>() {
                 }
         );
-    }
-
-    private void assertCatFields(JsonCat cat) {
-//        assertNotNull(cat.getCat().getName(), "Name should not be null");
-//        assertNotNull(cat.getCat().getAge(), "Age should not be null");
-//        assertNotNull(cat.getCat().getWeight(), "Weight should not be null");
     }
 
     private ResponseEntity<Object> createInvalidCatRequest(JsonCat cat) {

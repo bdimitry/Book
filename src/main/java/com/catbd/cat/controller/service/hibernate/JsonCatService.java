@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,9 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.github.perplexhub.rsql.RSQLJPASupport.toSpecification;
-
-public class JsonCatService {
+@Service
+public class JsonCatService implements JsonCatServiceInterface {
 
     private static final Logger logger = LoggerFactory.getLogger(JsonController.class);
 
@@ -49,16 +49,12 @@ public class JsonCatService {
     @Autowired
     private S3Client s3Client;
 
-    public List<JsonCat> getAllHibernateCats() {
-        logger.info("Fetching all HibernateCat records.");
-        String filter = "weight=gt=1;age=gt=1";
-        Map<String, String> propertyPathMapper = new HashMap<>();
-        jsonCatRepository.findAll(toSpecification(filter, propertyPathMapper));
+    public List<JsonCat> getAllJsonCats() {
         return jsonCatRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<JsonCat> getHibernateCatById(@PathVariable Long id) {
+    public ResponseEntity<JsonCat> getJsonCatById(@PathVariable Long id) {
         logger.info("Fetching HibernateCat with ID: {}", id);
         Optional<JsonCat> cat = jsonCatRepository.findById(id);
         if (cat.isPresent()) {
@@ -70,7 +66,7 @@ public class JsonCatService {
         }
     }
 
-    public ResponseEntity<Object> createHibernateCat(@Valid @org.springframework.web.bind.annotation.RequestBody JsonCat jsonCat, BindingResult bindingResult) {
+    public ResponseEntity<Object> createJsonCat(@Valid @org.springframework.web.bind.annotation.RequestBody JsonCat jsonCat, BindingResult bindingResult) {
         logger.info("Creating new HibernateCat with data: {}", jsonCat);
         if (bindingResult.hasErrors()) {
             logger.warn("Validation errors occurred while creating HibernateCat.");
@@ -86,7 +82,7 @@ public class JsonCatService {
         return new ResponseEntity<>(savedCat, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<Object> updateHibernateCat(@PathVariable Long id, @Valid @org.springframework.web.bind.annotation.RequestBody CatDTO catDTO, BindingResult bindingResult) {
+    public ResponseEntity<Object> updateJsonCat(@PathVariable Long id, @Valid @org.springframework.web.bind.annotation.RequestBody CatDTO catDTO, BindingResult bindingResult) {
         logger.info("Updating JsonCat with ID: {}", id);
 
         if (bindingResult.hasErrors()) {
@@ -114,7 +110,7 @@ public class JsonCatService {
         return new ResponseEntity<>(updatedCat, HttpStatus.OK);
     }
 
-    public ResponseEntity<Void> deleteHibernateCat(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteJsonCat(@PathVariable Long id) {
         logger.info("Deleting HibernateCat with ID: {}", id);
         if (jsonCatRepository.existsById(id)) {
             jsonCatRepository.deleteById(id);
