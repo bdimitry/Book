@@ -4,7 +4,7 @@ This project is simple simulation of REST service and it's evolution made by 1 s
 
 
 ## Project Scheme
-![](src\main\resources\Project Scheme.png)
+(https://github.com/bdimitry/Cat/blob/810473ebbd81d2cf56431d194c2d7fff12969407/src/main/resources/Project%20Scheme.png)
 
 ### File links
 
