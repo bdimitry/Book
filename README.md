@@ -2,6 +2,10 @@
 
 This project is simple simulation of REST service and it's evolution made by 1 student.
 
+
+## Project Scheme
+![](src\main\resources\Project Scheme.png)
+
 ### File links
 
 * [Initdb1.sql](src/main/resources/Initdb1.sql)

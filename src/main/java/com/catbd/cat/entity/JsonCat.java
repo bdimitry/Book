@@ -1,8 +1,10 @@
 package com.catbd.cat.entity;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,7 +23,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class JsonCat {
 
-    // TODO: add validation
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonProperty("id")
@@ -36,42 +39,74 @@ public class JsonCat {
     @JsonProperty("imageUrl")
     private String imageUrl;
 
-    // Геттеры и сеттеры
     @JsonProperty("name")
     public String getName() {
-//        if (cat.get("name") == null) return null;
-        return null;
-//        return cat.get("name").toString();
+        return getJsonFieldAsString("name");
     }
 
     @JsonProperty("age")
     public Long getAge() {
-//        if (cat.get("age") == null) return null;
-        return null;
-//        return ((Number) cat.get("age")).longValue();
+        return getJsonFieldAsLong("age");
     }
 
     @JsonProperty("weight")
     public BigDecimal getWeight() {
-        return null;
-        //        if (cat.get("weight") == null) return null;
-//        return BigDecimal.valueOf(((Number) cat.get("weight")).doubleValue());
+        return getJsonFieldAsBigDecimal("weight");
     }
 
     public void setName(String name) {
-//        if (name == null) return;
-//        cat.put("name", name);
+        setJsonField("name", name);
     }
 
     public void setAge(Long age) {
-//        if (age == null) return;
-//        cat.put("age", BigDecimal.valueOf(age));
+        setJsonField("age", age);
     }
 
     public void setWeight(BigDecimal weight) {
-//        if (weight == null) return;
-//        cat.put("weight", weight);
+        setJsonField("weight", weight);
+    }
+
+    private String getJsonFieldAsString(String fieldName) {
+        try {
+            JsonNode node = objectMapper.readTree(cat);
+            return node.has(fieldName) ? node.get(fieldName).asText() : null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private Long getJsonFieldAsLong(String fieldName) {
+        try {
+            JsonNode node = objectMapper.readTree(cat);
+            return node.has(fieldName) ? node.get(fieldName).asLong() : null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private BigDecimal getJsonFieldAsBigDecimal(String fieldName) {
+        try {
+            JsonNode node = objectMapper.readTree(cat);
+            return node.has(fieldName) ? node.get(fieldName).decimalValue() : null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void setJsonField(String fieldName, Object value) {
+        try {
+            ObjectNode node = cat == null ? objectMapper.createObjectNode() : (ObjectNode) objectMapper.readTree(cat);
+            if (value == null) {
+                node.remove(fieldName);
+            } else {
+                node.putPOJO(fieldName, value);
+            }
+            cat = node.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
-
-

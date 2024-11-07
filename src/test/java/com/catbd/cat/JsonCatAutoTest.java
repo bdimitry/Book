@@ -380,7 +380,7 @@ class JsonCatAutoTest {
     @Test
     public void testGetCatsFilteredByRsql() {
         ResponseEntity<List<TestCat>> response = restTemplate.exchange(
-                "/v4/api/cats/filter?filter=name==John",
+                "/v4/api/cats/cats?weight=3&age=3",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<List<TestCat>>() {

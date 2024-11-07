@@ -9,7 +9,6 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,7 +49,6 @@ public class JsonController {
     @Autowired
     private CatService createHibernateCatService;
 
-
     @Autowired
     private ImageCatRepository imageCatRepository;
 
@@ -61,9 +59,7 @@ public class JsonController {
     @GetMapping
     public List<JsonCat> getAllHibernateCats() {
         logger.info("Fetching all HibernateCat records.");
-        String filter = "weight=gt=1;age=gt=1";
-        Map<String, String> propertyPathMapper = new HashMap<>();
-        jsonCatRepository.findAll(toSpecification(filter, propertyPathMapper));
+        jsonCatRepository.findAll();
         return jsonCatRepository.findAll();
     }
 
