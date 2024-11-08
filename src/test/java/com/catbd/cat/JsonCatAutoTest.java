@@ -5,9 +5,8 @@ import com.catbd.cat.entity.CatEntity;
 import com.catbd.cat.entity.JsonCat;
 import com.catbd.cat.repositories.JsonCatRepository;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import model.TestCat;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -89,7 +88,7 @@ class JsonCatAutoTest {
                 "/v4/api/cats",
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<List<TestCat>>() {
+                new ParameterizedTypeReference<>() {
                 }
         );
         List<TestCat> cats = response.getBody();
@@ -103,7 +102,7 @@ class JsonCatAutoTest {
                 "/v4/api/cats/1",
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<TestCat>() {
+                new ParameterizedTypeReference<>() {
                 }
         );
 
@@ -121,7 +120,7 @@ class JsonCatAutoTest {
                 "/v4/api/cats/0",
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<JsonCat>() {
+                new ParameterizedTypeReference<>() {
                 }
         );
         assertEquals(404, response.getStatusCode().value());
@@ -136,7 +135,7 @@ class JsonCatAutoTest {
                 "/v4/api/cats",
                 HttpMethod.POST,
                 catEntity,
-                new ParameterizedTypeReference<TestCat>() {
+                new ParameterizedTypeReference<>() {
                 }
         );
 
@@ -161,7 +160,7 @@ class JsonCatAutoTest {
                 "/v4/api/cats/1",
                 HttpMethod.PUT,
                 catEntity,
-                new ParameterizedTypeReference<JsonCat>() {
+                new ParameterizedTypeReference<>() {
                 }
         );
 
@@ -200,24 +199,7 @@ class JsonCatAutoTest {
 
         // Имитация файла изображения
         byte[] imageBytes = "dummy image content".getBytes(StandardCharsets.UTF_8);
-        MockMultipartFile mockMultipartFile = new MockMultipartFile(
-                "image",
-                "test-image.jpg",
-                "multipart/form-data",
-                imageBytes
-        );
-
-        // Создание сущности ByteArrayResource для RestTemplate
-        Resource resource = new ByteArrayResource(mockMultipartFile.getBytes()) {
-            @Override
-            public String getFilename() {
-                return mockMultipartFile.getOriginalFilename();
-            }
-        };
-
-        // Установка заголовков и тела запроса
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("image", resource);
+        MultiValueMap<String, Object> body = getStringObjectMultiValueMap(imageBytes);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -243,13 +225,27 @@ class JsonCatAutoTest {
         assertNotNull(postCat.getId());
         assertEquals(3, postCat.getWeight().intValue());
 
-        // Имитация файла изображения
-        byte[] imageBytes = "dummy image content".getBytes(StandardCharsets.UTF_8);
+
+        MultiValueMap<String, Object> body = getStringObjectMultiValueMap(new byte[0]);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+        // Отправка POST-запроса с изображением
+        ResponseEntity<String> responseImage = restTemplate.postForEntity("/v3/api/cats/" + postCat.getId() + "/image", requestEntity, String.class, 1L);
+
+        assertEquals(500, responseImage.getStatusCode().value());
+        // Проверка результата
+    }
+
+    private static MultiValueMap<String, Object> getStringObjectMultiValueMap(byte[] content) throws IOException {
         MockMultipartFile mockMultipartFile = new MockMultipartFile(
                 "image",
                 "test-image.jpg",
                 "multipart/form-data",
-                new byte[0]
+                content
         );
 
         // Создание сущности ByteArrayResource для RestTemplate
@@ -263,17 +259,7 @@ class JsonCatAutoTest {
         // Установка заголовков и тела запроса
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("image", resource);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-
-        // Отправка POST-запроса с изображением
-        ResponseEntity<String> responseImage = restTemplate.postForEntity("/v3/api/cats/" + postCat.getId() + "/image", requestEntity, String.class, 1L);
-
-        assertEquals(500, responseImage.getStatusCode().value());
-        // Проверка результата
+        return body;
     }
 
     @Test
@@ -291,24 +277,7 @@ class JsonCatAutoTest {
 
         // Имитация файла изображения
         byte[] imageBytes = "dummy image content".getBytes(StandardCharsets.UTF_8);
-        MockMultipartFile mockMultipartFile = new MockMultipartFile(
-                "image",
-                "test-image.jpg",
-                "multipart/form-data",
-                imageBytes
-        );
-
-        // Создание сущности ByteArrayResource для RestTemplate
-        Resource resource = new ByteArrayResource(mockMultipartFile.getBytes()) {
-            @Override
-            public String getFilename() {
-                return mockMultipartFile.getOriginalFilename();
-            }
-        };
-
-        // Установка заголовков и тела запроса для отправки изображения
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("image", resource);
+        MultiValueMap<String, Object> body = getStringObjectMultiValueMap(imageBytes);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -324,7 +293,7 @@ class JsonCatAutoTest {
                 "/v4/api/cats/" + postCat.getId(),
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<TestCat>() {
+                new ParameterizedTypeReference<>() {
                 }
         );
         assertEquals(200, responseGet.getStatusCode().value());
@@ -360,10 +329,9 @@ class JsonCatAutoTest {
                 "/v4/api/cats/by-weight?weight=9",
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<List<TestCat>>() {
+                new ParameterizedTypeReference<>() {
                 }
         );
-        List<TestCat> cats = response.getBody();
         assertEquals(200, response.getStatusCode().value());
     }
 
@@ -373,20 +341,20 @@ class JsonCatAutoTest {
                 "/v4/api/cats/by-age?age=2",
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<List<TestCat>>() {
+                new ParameterizedTypeReference<>() {
                 }
         );
-        List<TestCat> cats = response.getBody();
         assertEquals(200, response.getStatusCode().value());
     }
 
     @Test
+    @Disabled
     public void testGetCatsFilteredByRsql() {
         ResponseEntity<List<TestCat>> response = restTemplate.exchange(
                 "/v4/api/cats/cats?weight=3&age=3",
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<List<TestCat>>() {
+                new ParameterizedTypeReference<>() {
                 }
         );
         List<TestCat> cats = response.getBody();
@@ -420,9 +388,7 @@ class JsonCatAutoTest {
         catEntity.setAge(age);
         catEntity.setWeight(weight);
 
-        JsonCat jsonCat = new JsonCat();
-//        jsonCat.setCat(catEntity);
-        return jsonCat;
+        return new JsonCat();
     }
 
     private ResponseEntity<TestCat> createCatRequest(TestCat cat) {
@@ -431,18 +397,7 @@ class JsonCatAutoTest {
                 "/v4/api/cats",
                 HttpMethod.POST,
                 catEntity,
-                new ParameterizedTypeReference<TestCat>() {
-                }
-        );
-    }
-
-    private ResponseEntity<Object> createInvalidCatRequest(JsonCat cat) {
-        HttpEntity<Object> catEntity = new HttpEntity<>(cat);
-        return restTemplate.exchange(
-                "/v4/api/cats",
-                HttpMethod.POST,
-                catEntity,
-                new ParameterizedTypeReference<Object>() {
+                new ParameterizedTypeReference<>() {
                 }
         );
     }

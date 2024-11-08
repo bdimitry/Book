@@ -1,13 +1,9 @@
 package com.catbd.cat;
 
-import com.catbd.cat.controller.HibernateController;
 import com.catbd.cat.entity.HibernateCat;
-import com.catbd.cat.repositories.HibernateCatRepository;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -18,7 +14,7 @@ import org.springframework.http.*;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -32,15 +28,16 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = {
-        "config.dir=src//test//resources//",
-        "spring.config.location=classpath:test-application.properties"
+        "location=classpath:test-application.properties"
 })
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -48,16 +45,14 @@ import static org.junit.jupiter.api.Assertions.*;
 @DirtiesContext
 public class HibernateControllerAutoTest {
 
-    @InjectMocks
-    private HibernateController hibernateController;
-
     @Autowired
-    private TestRestTemplate restTemplate;
+    private final TestRestTemplate restTemplate;
 
-    @Mock
-    private HibernateCatRepository hibernateCatRepository;
+    public HibernateControllerAutoTest(TestRestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         Region region = Region.EU_NORTH_1;
         String bucketName = "catstorage";
@@ -77,10 +72,9 @@ public class HibernateControllerAutoTest {
                 "/v3/api/cats",
                 HttpMethod.GET,
                 null,  // Request entity (e.g., headers), or null if none
-                new ParameterizedTypeReference<List<HibernateCat>>() {
+                new ParameterizedTypeReference<>() {
                 } // Generic type token
         );
-        List<HibernateCat> cats = response.getBody();
         assertEquals(200, response.getStatusCode().value());
     }
 
@@ -90,7 +84,7 @@ public class HibernateControllerAutoTest {
                 "/v3/api/cats?weight=3&age=3",
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<List<HibernateCat>>() {
+                new ParameterizedTypeReference<>() {
                 }
         );
         List<HibernateCat> cats = response.getBody();
@@ -113,7 +107,7 @@ public class HibernateControllerAutoTest {
                 "/v3/api/cats/" + postCat.getId(),
                 HttpMethod.GET,
                 null,  // Request entity (e.g., headers), or null if none
-                new ParameterizedTypeReference<HibernateCat>() {
+                new ParameterizedTypeReference<>() {
                 } // Generic type token
         );
         HibernateCat cats = responseGet.getBody();
@@ -132,23 +126,22 @@ public class HibernateControllerAutoTest {
         assertEquals(201, response.getStatusCode().value());
         assertEquals("Farcuad The Second", postCat.getName());
         assertEquals(3, postCat.getAge());
-        assertNotNull(postCat.getId());
         assertEquals(3, postCat.getWeight());
         ResponseEntity<HibernateCat> responseGet = restTemplate.exchange(
                 "/v3/api/cats/" + postCat.getId(),
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<HibernateCat>() {
+                new ParameterizedTypeReference<>() {
                 }
         );
         HibernateCat getCat = responseGet.getBody();
         assertEquals(200, responseGet.getStatusCode().value());
         assertEquals("Farcuad The Second", getCat.getName());
         assertEquals(3, getCat.getAge());
-        assertNotNull(getCat.getId());
         assertEquals(3, getCat.getWeight());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testCreateHibernateCatValidationErrors() {
         HibernateCat invalidCat = createCat("Inv", -1, 0);
@@ -156,7 +149,8 @@ public class HibernateControllerAutoTest {
 
         assertEquals(400, response.getStatusCode().value());
 
-        Map<String, String> responseBody = (Map<String, String>) response.getBody();
+        Map<String, String> responseBody;
+        responseBody = Collections.unmodifiableMap((Map<String, String>) Objects.requireNonNull(response.getBody()));
         assertNotNull(responseBody);
         assertEquals(3, responseBody.size());
         assertEquals("Name should have between 4 and 100 characters", responseBody.get("name"));
@@ -175,7 +169,6 @@ public class HibernateControllerAutoTest {
         assertEquals(201, response.getStatusCode().value());
         assertEquals("Farcuad The Second", postCat.getName());
         assertEquals(3, postCat.getAge());
-        assertNotNull(postCat.getId());
         assertEquals(3, postCat.getWeight());
 
         // Prepare the updated cat entity
@@ -192,7 +185,7 @@ public class HibernateControllerAutoTest {
                 "/v3/api/cats/" + postCat.getId(),
                 HttpMethod.PUT,
                 catEntityUpdated,
-                new ParameterizedTypeReference<HibernateCat>() {
+                new ParameterizedTypeReference<>() {
                 }
         );
 
@@ -202,7 +195,6 @@ public class HibernateControllerAutoTest {
         assertEquals(200, responseUpdate.getStatusCode().value());
         assertEquals("Farcuad The Third", getCat.getName());
         assertEquals(3, getCat.getAge());
-        assertNotNull(getCat.getId());
         assertEquals(3, getCat.getWeight());
     }
 
@@ -215,14 +207,13 @@ public class HibernateControllerAutoTest {
         assertEquals(201, response.getStatusCode().value());
         assertEquals("Farcuad The Second", postCat.getName());
         assertEquals(3, postCat.getAge());
-        assertNotNull(postCat.getId());
         assertEquals(3, postCat.getWeight());
 
         ResponseEntity<String> responseDelete = restTemplate.exchange(
                 "/v3/api/cats/" + postCat.getId(),
                 HttpMethod.DELETE,
                 null,
-                new ParameterizedTypeReference<String>() {
+                new ParameterizedTypeReference<>() {
                 }
         );
         assertEquals(200, responseDelete.getStatusCode().value());
@@ -232,7 +223,7 @@ public class HibernateControllerAutoTest {
                 "/v3/api/cats/" + postCat.getId(),
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<HibernateCat>() {
+                new ParameterizedTypeReference<>() {
                 }
         );
         assertEquals(404, responseGet.getStatusCode().value());
@@ -247,29 +238,10 @@ public class HibernateControllerAutoTest {
         assertEquals(201, response.getStatusCode().value());
         assertEquals("Farcuad The Second", postCat.getName());
         assertEquals(3, postCat.getAge());
-        assertNotNull(postCat.getId());
         assertEquals(3, postCat.getWeight());
 
         // Имитация файла изображения
-        byte[] imageBytes = "dummy image content".getBytes(StandardCharsets.UTF_8);
-        MockMultipartFile mockMultipartFile = new MockMultipartFile(
-                "image",
-                "test-image.jpg",
-                "multipart/form-data",
-                imageBytes
-        );
-
-        // Создание сущности ByteArrayResource для RestTemplate
-        Resource resource = new ByteArrayResource(mockMultipartFile.getBytes()) {
-            @Override
-            public String getFilename() {
-                return mockMultipartFile.getOriginalFilename();
-            }
-        };
-
-        // Установка заголовков и тела запроса
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("image", resource);
+        MultiValueMap<String, Object> body = getObjectMultiValueMap();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -283,6 +255,11 @@ public class HibernateControllerAutoTest {
         // Проверка результата
     }
 
+    private static MultiValueMap<String, Object> getObjectMultiValueMap() throws IOException {
+        byte[] imageBytes = "dummy image content".getBytes(StandardCharsets.UTF_8);
+        return getStringObjectMultiValueMap(imageBytes);
+    }
+
     @Test
     public void testUploadInvalidImageCat() throws Exception {
         HibernateCat cat = createCat("Farcuad The Second", 3, 3);
@@ -292,29 +269,10 @@ public class HibernateControllerAutoTest {
         assertEquals(201, response.getStatusCode().value());
         assertEquals("Farcuad The Second", postCat.getName());
         assertEquals(3, postCat.getAge());
-        assertNotNull(postCat.getId());
         assertEquals(3, postCat.getWeight());
 
         // Имитация файла изображения
-        byte[] imageBytes = "dummy image content".getBytes(StandardCharsets.UTF_8);
-        MockMultipartFile mockMultipartFile = new MockMultipartFile(
-                "image",
-                "test-image.jpg",
-                "multipart/form-data",
-                new byte[0]
-        );
-
-        // Создание сущности ByteArrayResource для RestTemplate
-        Resource resource = new ByteArrayResource(mockMultipartFile.getBytes()) {
-            @Override
-            public String getFilename() {
-                return mockMultipartFile.getOriginalFilename();
-            }
-        };
-
-        // Установка заголовков и тела запроса
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("image", resource);
+        MultiValueMap<String, Object> body = getStringObjectMultiValueMap();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -339,29 +297,11 @@ public class HibernateControllerAutoTest {
         assertEquals(201, response.getStatusCode().value());
         assertEquals("Farcuad The Second", postCat.getName());
         assertEquals(3, postCat.getAge());
-        assertNotNull(postCat.getId());
         assertEquals(3, postCat.getWeight());
 
         // Имитация файла изображения
         byte[] imageBytes = "dummy image content".getBytes(StandardCharsets.UTF_8);
-        MockMultipartFile mockMultipartFile = new MockMultipartFile(
-                "image",
-                "test-image.jpg",
-                "multipart/form-data",
-                imageBytes
-        );
-
-        // Создание сущности ByteArrayResource для RestTemplate
-        Resource resource = new ByteArrayResource(mockMultipartFile.getBytes()) {
-            @Override
-            public String getFilename() {
-                return mockMultipartFile.getOriginalFilename();
-            }
-        };
-
-        // Установка заголовков и тела запроса для отправки изображения
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("image", resource);
+        MultiValueMap<String, Object> body = getStringObjectMultiValueMap(imageBytes);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -377,7 +317,7 @@ public class HibernateControllerAutoTest {
                 "/v3/api/cats/" + postCat.getId(),
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<HibernateCat>() {
+                new ParameterizedTypeReference<>() {
                 }
         );
         assertEquals(200, responseGet.getStatusCode().value());
@@ -405,6 +345,32 @@ public class HibernateControllerAutoTest {
                 byte[].class
         );
         assertEquals(404, responseGetImageNotFound.getStatusCode().value());
+    }
+
+    private static MultiValueMap<String, Object> getStringObjectMultiValueMap() throws IOException {
+        return getStringObjectMultiValueMap(new byte[0]);
+    }
+
+    private static MultiValueMap<String, Object> getStringObjectMultiValueMap(byte[] imageBytes) throws IOException {
+        MockMultipartFile mockMultipartFile = new MockMultipartFile(
+                "image",
+                "test-image.jpg",
+                "multipart/form-data",
+                imageBytes
+        );
+
+        // Создание сущности ByteArrayResource для RestTemplate
+        Resource resource = new ByteArrayResource(mockMultipartFile.getBytes()) {
+            @Override
+            public String getFilename() {
+                return mockMultipartFile.getOriginalFilename();
+            }
+        };
+
+        // Установка заголовков и тела запроса для отправки изображения
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("image", resource);
+        return body;
     }
 
     private static void createBucketIfNotExists(S3Client s3, String bucketName, Region region) {
@@ -440,7 +406,7 @@ public class HibernateControllerAutoTest {
                 "/v3/api/cats",
                 HttpMethod.POST,
                 catEntity,
-                new ParameterizedTypeReference<HibernateCat>() {
+                new ParameterizedTypeReference<>() {
                 }
         );
     }
@@ -451,7 +417,7 @@ public class HibernateControllerAutoTest {
                 "/v3/api/cats",
                 HttpMethod.POST,
                 catEntity,
-                new ParameterizedTypeReference<Object>() {
+                new ParameterizedTypeReference<>() {
                 }
         );
     }

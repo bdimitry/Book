@@ -8,11 +8,11 @@
         <version>3.3.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.T1</groupId>
+    <groupId>com.CatDB</groupId>
     <artifactId>CatDbProject</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Task1</name>
-    <description>Task 1:используя Spring создать REST API который может создать/удалить/обновить запись в таблице базы
+    <name>CatDB</name>
+    <description>CatDB:используя Spring создать REST API который может создать/удалить/обновить запись в таблице базы
         данных Postgres. Таблицу придумай сам.
     </description>
     <url/>
@@ -101,12 +101,6 @@
             <groupId>io.github.perplexhub</groupId>
             <artifactId>rsql-querydsl-spring-boot-starter</artifactId>
             <version>6.0.23</version>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
