@@ -166,6 +166,7 @@ public class HibernateControllerAutoTest {
 
     @Test
     public void testUpdateHibernateCat() {
+        // Initial create
         HibernateCat cat = createCat("Farcuad The Second", 3, 3);
         ResponseEntity<HibernateCat> response = createCatRequest(cat);
 
@@ -177,12 +178,16 @@ public class HibernateControllerAutoTest {
         assertNotNull(postCat.getId());
         assertEquals(3, postCat.getWeight());
 
+        // Prepare the updated cat entity
         HibernateCat catUpdate = new HibernateCat();
-        cat.setName("Farcuad The Third");
-        cat.setAge(3);
-        cat.setWeight(3);
-        HttpEntity<HibernateCat> catEntityUpdated = new HttpEntity<>(cat);
+        catUpdate.setId(postCat.getId()); // Set correct ID for update
+        catUpdate.setName("Farcuad The Third");
+        catUpdate.setAge(3);
+        catUpdate.setWeight(3);
 
+        HttpEntity<HibernateCat> catEntityUpdated = new HttpEntity<>(catUpdate);
+
+        // Update request
         ResponseEntity<HibernateCat> responseUpdate = restTemplate.exchange(
                 "/v3/api/cats/" + postCat.getId(),
                 HttpMethod.PUT,
@@ -193,6 +198,7 @@ public class HibernateControllerAutoTest {
 
         HibernateCat getCat = responseUpdate.getBody();
 
+        // Final assertions
         assertEquals(200, responseUpdate.getStatusCode().value());
         assertEquals("Farcuad The Third", getCat.getName());
         assertEquals(3, getCat.getAge());
@@ -220,7 +226,7 @@ public class HibernateControllerAutoTest {
                 }
         );
         assertEquals(200, responseDelete.getStatusCode().value());
-        assertEquals("Cat with ID " + postCat.getId() + " deleted successfully.", responseDelete.getBody());
+        assertEquals("Cat deleted successfully", responseDelete.getBody());
 
         ResponseEntity<HibernateCat> responseGet = restTemplate.exchange(
                 "/v3/api/cats/" + postCat.getId(),

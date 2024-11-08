@@ -3,7 +3,6 @@ package com.catbd.cat.controller;
 import com.catbd.cat.controller.service.hibernate.JsonCatServiceInterface;
 import com.catbd.cat.entity.CatDTO;
 import com.catbd.cat.entity.JsonCat;
-import com.catbd.cat.repositories.ImageCatRepository;
 import com.catbd.cat.repositories.JsonCatRepository;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -14,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.services.s3.S3Client;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -36,12 +34,6 @@ public class JsonController {
 
     @Autowired
     private JsonCatRepository jsonCatRepository;
-
-    @Autowired
-    private ImageCatRepository imageCatRepository;
-
-    @Autowired
-    private S3Client s3Client;
 
     // Получить всех котов
     @GetMapping

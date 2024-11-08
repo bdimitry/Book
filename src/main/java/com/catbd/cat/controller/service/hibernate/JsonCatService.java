@@ -53,7 +53,6 @@ public class JsonCatService implements JsonCatServiceInterface {
         return jsonCatRepository.findAll();
     }
 
-    @GetMapping("/{id}")
     public ResponseEntity<JsonCat> getJsonCatById(@PathVariable Long id) {
         logger.info("Fetching HibernateCat with ID: {}", id);
         Optional<JsonCat> cat = jsonCatRepository.findById(id);
@@ -100,9 +99,7 @@ public class JsonCatService implements JsonCatServiceInterface {
             logger.warn("JsonCat with ID: {} not found.", id);
             return new ResponseEntity<>("Cat not found", HttpStatus.NOT_FOUND);
         }
-
         JsonCat existingCat = existingCatOptional.get();
-//        existingCat.setImageUrl(catDTO.getImageUrl());
 
         JsonCat updatedCat = jsonCatRepository.save(existingCat);
         logger.info("JsonCat with ID: {} updated successfully.", id);
