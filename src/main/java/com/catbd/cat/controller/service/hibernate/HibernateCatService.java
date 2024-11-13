@@ -46,11 +46,7 @@ public class HibernateCatService implements CatService {
 
     public ResponseEntity<HibernateCat> getHibernateCatById(@PathVariable Long id) {
         Optional<HibernateCat> cat = hibernateCatRepository.findById(id);
-        if (cat.isPresent()) {
-            return ResponseEntity.ok(cat.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return cat.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     public ResponseEntity<Object> createHibernateCat(@Valid @RequestBody HibernateCat hibernateCat, BindingResult bindingResult) {
@@ -78,7 +74,7 @@ public class HibernateCatService implements CatService {
         }
 
         Optional<HibernateCat> existingCatOptional = hibernateCatRepository.findById(id);
-        if (!existingCatOptional.isPresent()) {
+        if (existingCatOptional.isEmpty()) {
             return new ResponseEntity<>("Cat not found", HttpStatus.NOT_FOUND);
         }
 
@@ -132,21 +128,16 @@ public class HibernateCatService implements CatService {
         return hibernateCatRepository.findAll(specification);
     }
 
-    private Specification<HibernateCat> toSpecification(Double weight, Integer age) {
-        return (root, query, criteriaBuilder) -> {
-            return criteriaBuilder.and(
-                    weight != null ? criteriaBuilder.greaterThan(root.get("weight"), weight) : criteriaBuilder.conjunction(),
-                    age != null ? criteriaBuilder.greaterThan(root.get("age"), age) : criteriaBuilder.conjunction()
-            );
-        };
-    }
-
     public ResponseEntity<byte[]> getImageCat(@PathVariable Long id) {
         Optional<ImageCat> imageCatOpt = imageCatRepository.findById(id);
-        if (imageCatOpt.isPresent()) {
-            return new ResponseEntity<>(imageCatOpt.get().getImageData(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return imageCatOpt.map(imageCat -> new ResponseEntity<>(imageCat.getImageData(),
+                HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    private Specification<HibernateCat> toSpecification(Double weight, Integer age) {
+        return (root, _, criteriaBuilder) -> criteriaBuilder.and(
+                weight != null ? criteriaBuilder.greaterThan(root.get("weight"), weight) : criteriaBuilder.conjunction(),
+                age != null ? criteriaBuilder.greaterThan(root.get("age"), age) : criteriaBuilder.conjunction()
+        );
     }
 }

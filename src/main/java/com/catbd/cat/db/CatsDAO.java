@@ -11,8 +11,7 @@ import java.util.List;
 
 
 public class CatsDAO {
-    // надо разобрать эту часть кода
-    public List<Cat> getAllCats() {
+     public List<Cat> getAllCats() {
         String sql = "SELECT * FROM \"cats\".\"cat\"";
         List<Cat> cats = new ArrayList<>();
 
@@ -46,7 +45,6 @@ public class CatsDAO {
             pstmt.setInt(2, cat.getAge());
             pstmt.setInt(3, cat.getWeight());
             pstmt.executeUpdate();
-// Узнать как получить айди после инсерта
             System.out.println("Cat added successfully");
 
         } catch (SQLException e) {

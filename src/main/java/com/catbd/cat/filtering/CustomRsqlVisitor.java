@@ -40,25 +40,20 @@ public class CustomRsqlVisitor<T> implements RSQLVisitor<Specification<T>, Void>
         String operator = node.getOperator().getSymbol();
         List<String> arguments = node.getArguments();
 
-        // Обработка путей JSONB
         if (isJsonBField(selector)) {
             return handleJsonBField(selector, operator, arguments);
         }
 
-        // Преобразование селектора через маппинг путей, если требуется
         String mappedSelector = propertyPathMapper.getOrDefault(selector, selector);
 
-        // Генерация спецификации для обычных полей
-        return (root, query, builder) -> {
+        return (root, _, builder) -> {
             Path<Object> path = getPath(root, mappedSelector);
             return buildPredicate(path, operator, arguments, builder);
         };
     }
 
-    // Метод для обработки JSONB полей
     private Specification<T> handleJsonBField(String selector, String operator, List<String> arguments) {
-        return (root, query, builder) -> {
-            // Разбиваем путь JSONB на компоненты
+        return (root, _, builder) -> {
             String[] jsonPath = selector.split("\\.");
             Expression<String> jsonExpression = root.get(jsonPath[0]);
 
@@ -66,45 +61,31 @@ public class CustomRsqlVisitor<T> implements RSQLVisitor<Specification<T>, Void>
                 jsonExpression = builder.function("jsonb_extract_path_text", String.class, jsonExpression, builder.literal(jsonPath[i]));
             }
 
-            // Построение предиката на основе оператора и аргументов
             return buildPredicate(jsonExpression, operator, arguments, builder);
         };
     }
 
-    // Определяет, является ли поле JSONB
     private boolean isJsonBField(String selector) {
         return selector.contains(".");
     }
 
-    // Построение предиката на основе оператора
     private Predicate buildPredicate(Expression<?> path, String operator, List<String> arguments, CriteriaBuilder builder) {
-        String argument = arguments.get(0);
+        String argument = arguments.getFirst();
 
-        switch (operator) {
-            case "==":
-                return builder.equal(path, argument);
-            case "!=":
-                return builder.notEqual(path, argument);
-            case "=in=":
-                return path.in(arguments);
-            case "=out=":
-                return builder.not(path.in(arguments));
-            case "=like=":
-                return builder.like(path.as(String.class), "%" + argument + "%");
-            case "=gt=":
-                return builder.greaterThan(path.as(String.class), argument);
-            case "=lt=":
-                return builder.lessThan(path.as(String.class), argument);
-            case "=isnull=":
-                return builder.isNull(path);
-            case "=notnull=":
-                return builder.isNotNull(path);
-            default:
-                throw new UnsupportedOperationException("Unsupported operator: " + operator);
-        }
+        return switch (operator) {
+            case "==" -> builder.equal(path, argument);
+            case "!=" -> builder.notEqual(path, argument);
+            case "=in=" -> path.in(arguments);
+            case "=out=" -> builder.not(path.in(arguments));
+            case "=like=" -> builder.like(path.as(String.class), "%" + argument + "%");
+            case "=gt=" -> builder.greaterThan(path.as(String.class), argument);
+            case "=lt=" -> builder.lessThan(path.as(String.class), argument);
+            case "=isnull=" -> builder.isNull(path);
+            case "=notnull=" -> builder.isNotNull(path);
+            default -> throw new UnsupportedOperationException("Unsupported operator: " + operator);
+        };
     }
 
-    // Получение пути к полю сущности
     private Path<Object> getPath(Root<T> root, String selector) {
         if (selector.contains(".")) {
             String[] parts = selector.split("\\.");

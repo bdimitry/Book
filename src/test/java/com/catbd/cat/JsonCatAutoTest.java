@@ -197,7 +197,6 @@ class JsonCatAutoTest {
         assertNotNull(postCat.getId());
         assertEquals(3, postCat.getWeight().intValue());
 
-        // Имитация файла изображения
         byte[] imageBytes = "dummy image content".getBytes(StandardCharsets.UTF_8);
         MultiValueMap<String, Object> body = getStringObjectMultiValueMap(imageBytes);
 
@@ -206,11 +205,9 @@ class JsonCatAutoTest {
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
-        // Отправка POST-запроса с изображением
         ResponseEntity<String> responseImage = restTemplate.postForEntity("/v4/api/cats/" + postCat.getId() + "/image", requestEntity, String.class, 1L);
 
         assertEquals(201, responseImage.getStatusCode().value());
-        // Проверка результата
     }
 
     @Test
@@ -233,11 +230,9 @@ class JsonCatAutoTest {
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
-        // Отправка POST-запроса с изображением
         ResponseEntity<String> responseImage = restTemplate.postForEntity("/v3/api/cats/" + postCat.getId() + "/image", requestEntity, String.class, 1L);
 
         assertEquals(500, responseImage.getStatusCode().value());
-        // Проверка результата
     }
 
     private static MultiValueMap<String, Object> getStringObjectMultiValueMap(byte[] content) throws IOException {
@@ -248,7 +243,6 @@ class JsonCatAutoTest {
                 content
         );
 
-        // Создание сущности ByteArrayResource для RestTemplate
         Resource resource = new ByteArrayResource(mockMultipartFile.getBytes()) {
             @Override
             public String getFilename() {
@@ -256,7 +250,6 @@ class JsonCatAutoTest {
             }
         };
 
-        // Установка заголовков и тела запроса
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("image", resource);
         return body;
@@ -267,7 +260,6 @@ class JsonCatAutoTest {
         TestCat cat = TestCat.builder().name("Farcuad The Second").age(3L).weight(BigDecimal.valueOf(3)).build();
         ResponseEntity<TestCat> response = createCatRequest(cat);
 
-        // Проверка успешного создания кота
         TestCat postCat = response.getBody();
         assertEquals(201, response.getStatusCode().value());
         assertEquals("Farcuad The Second", postCat.getName());
@@ -275,7 +267,6 @@ class JsonCatAutoTest {
         assertNotNull(postCat.getId());
         assertEquals(3, postCat.getWeight().intValue());
 
-        // Имитация файла изображения
         byte[] imageBytes = "dummy image content".getBytes(StandardCharsets.UTF_8);
         MultiValueMap<String, Object> body = getStringObjectMultiValueMap(imageBytes);
 
@@ -284,11 +275,9 @@ class JsonCatAutoTest {
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
-        // Отправка POST-запроса с изображением
         ResponseEntity<String> responseImage = restTemplate.postForEntity("/v4/api/cats/" + postCat.getId() + "/image", requestEntity, String.class);
         assertEquals(201, responseImage.getStatusCode().value());
 
-        // Проверка получения созданного кота
         ResponseEntity<TestCat> responseGet = restTemplate.exchange(
                 "/v4/api/cats/" + postCat.getId(),
                 HttpMethod.GET,
@@ -298,9 +287,6 @@ class JsonCatAutoTest {
         );
         assertEquals(200, responseGet.getStatusCode().value());
 
-        // Теперь добавляем тест на получение изображения
-
-        // Отправка GET-запроса на получение изображения для созданного кота
         ResponseEntity<byte[]> responseGetImage = restTemplate.exchange(
                 "/v4/api/cats/" + postCat.getId() + "/image",
                 HttpMethod.GET,
@@ -308,7 +294,6 @@ class JsonCatAutoTest {
                 byte[].class
         );
 
-        // Проверка успешного получения изображения
         assertEquals(200, responseGetImage.getStatusCode().value());
         assertNotNull(responseGetImage.getBody());
         assertArrayEquals(imageBytes, responseGetImage.getBody());

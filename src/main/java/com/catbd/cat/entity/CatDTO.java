@@ -7,7 +7,6 @@ public class CatDTO {
     private double weight;
     private String imageUrl;
 
-    // Конструктор
     public CatDTO(long id, String name, int age, double weight, String imageUrl) {
         this.id = id;
         this.name = name;
@@ -16,7 +15,6 @@ public class CatDTO {
         this.imageUrl = imageUrl;
     }
 
-    // Геттеры
     public long getId() {
         return id;
     }
@@ -37,7 +35,6 @@ public class CatDTO {
         return imageUrl;
     }
 
-    // Сеттеры (если они нужны)
     public void setId(long id) {
         this.id = id;
     }

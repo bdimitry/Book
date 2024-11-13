@@ -240,7 +240,7 @@ public class HibernateControllerAutoTest {
         assertEquals(3, postCat.getAge());
         assertEquals(3, postCat.getWeight());
 
-        // Имитация файла изображения
+        // Picture file imitation
         MultiValueMap<String, Object> body = getObjectMultiValueMap();
 
         HttpHeaders headers = new HttpHeaders();
@@ -248,11 +248,9 @@ public class HibernateControllerAutoTest {
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
-        // Отправка POST-запроса с изображением
         ResponseEntity<String> responseImage = restTemplate.postForEntity("/v3/api/cats/" + postCat.getId() + "/image", requestEntity, String.class, 1L);
 
         assertEquals(201, responseImage.getStatusCode().value());
-        // Проверка результата
     }
 
     private static MultiValueMap<String, Object> getObjectMultiValueMap() throws IOException {
@@ -271,7 +269,6 @@ public class HibernateControllerAutoTest {
         assertEquals(3, postCat.getAge());
         assertEquals(3, postCat.getWeight());
 
-        // Имитация файла изображения
         MultiValueMap<String, Object> body = getStringObjectMultiValueMap();
 
         HttpHeaders headers = new HttpHeaders();
@@ -279,27 +276,22 @@ public class HibernateControllerAutoTest {
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
-        // Отправка POST-запроса с изображением
         ResponseEntity<String> responseImage = restTemplate.postForEntity("/v3/api/cats/" + postCat.getId() + "/image", requestEntity, String.class, 1L);
 
         assertEquals(500, responseImage.getStatusCode().value());
-        // Проверка результата
     }
 
     @Test
     public void testGetImageCat() throws IOException {
-        // Создание HibernateCat и отправка запроса на его создание
         HibernateCat cat = createCat("Farcuad The Second", 3, 3);
         ResponseEntity<HibernateCat> response = createCatRequest(cat);
 
-        // Проверка успешного создания кота
         HibernateCat postCat = response.getBody();
         assertEquals(201, response.getStatusCode().value());
         assertEquals("Farcuad The Second", postCat.getName());
         assertEquals(3, postCat.getAge());
         assertEquals(3, postCat.getWeight());
 
-        // Имитация файла изображения
         byte[] imageBytes = "dummy image content".getBytes(StandardCharsets.UTF_8);
         MultiValueMap<String, Object> body = getStringObjectMultiValueMap(imageBytes);
 
@@ -308,11 +300,9 @@ public class HibernateControllerAutoTest {
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
-        // Отправка POST-запроса с изображением
         ResponseEntity<String> responseImage = restTemplate.postForEntity("/v3/api/cats/" + postCat.getId() + "/image", requestEntity, String.class, 1L);
         assertEquals(201, responseImage.getStatusCode().value());
 
-        // Проверка получения созданного кота
         ResponseEntity<HibernateCat> responseGet = restTemplate.exchange(
                 "/v3/api/cats/" + postCat.getId(),
                 HttpMethod.GET,
@@ -322,9 +312,6 @@ public class HibernateControllerAutoTest {
         );
         assertEquals(200, responseGet.getStatusCode().value());
 
-        // Теперь добавляем тест на получение изображения
-
-        // Отправка GET-запроса на получение изображения для созданного кота
         ResponseEntity<byte[]> responseGetImage = restTemplate.exchange(
                 "/v3/api/cats/" + postCat.getId() + "/image",
                 HttpMethod.GET,
@@ -332,12 +319,10 @@ public class HibernateControllerAutoTest {
                 byte[].class
         );
 
-        // Проверка успешного получения изображения
         assertEquals(200, responseGetImage.getStatusCode().value());
         assertNotNull(responseGetImage.getBody());
         assertArrayEquals(imageBytes, responseGetImage.getBody());
 
-        // Проверка статуса 404 для некорректного ID
         ResponseEntity<byte[]> responseGetImageNotFound = restTemplate.exchange(
                 "/v3/api/cats/99999/image",
                 HttpMethod.GET,
@@ -359,7 +344,6 @@ public class HibernateControllerAutoTest {
                 imageBytes
         );
 
-        // Создание сущности ByteArrayResource для RestTemplate
         Resource resource = new ByteArrayResource(mockMultipartFile.getBytes()) {
             @Override
             public String getFilename() {
@@ -367,7 +351,6 @@ public class HibernateControllerAutoTest {
             }
         };
 
-        // Установка заголовков и тела запроса для отправки изображения
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("image", resource);
         return body;

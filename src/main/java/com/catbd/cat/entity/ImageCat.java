@@ -16,7 +16,4 @@ public class ImageCat  {
     @Column(name = "cat_photo", columnDefinition = "BYTEA")
     private byte[] imageData;
 
-//    @OneToOne TODO: Try to use this instead of Id field above
-//    @JoinColumn(name = "id", referencedColumnName = "id", insertable = false, updatable = false)
-//    private HibernateCat hibernateCat;
 }

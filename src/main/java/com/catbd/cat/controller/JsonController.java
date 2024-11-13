@@ -35,31 +35,26 @@ public class JsonController {
     @Autowired
     private JsonCatRepository jsonCatRepository;
 
-    // Получить всех котов
     @GetMapping
     public List<JsonCat> getAllHibernateCats() {
         return jsonCatServiceInterface.getAllJsonCats();
     }
 
-    // Получить кота по ID
     @GetMapping("/{id}")
     public ResponseEntity<JsonCat> getHibernateCatById(@PathVariable Long id) {
         return jsonCatServiceInterface.getJsonCatById(id);
     }
 
-    // Создать нового кота
     @PostMapping
     public ResponseEntity<Object> createHibernateCat(@Valid @org.springframework.web.bind.annotation.RequestBody JsonCat jsonCat, BindingResult bindingResult) {
         return jsonCatServiceInterface.createJsonCat(jsonCat, bindingResult);
     }
 
-    // Обновить данные о коте
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateHibernateCat(@PathVariable Long id, @Valid @org.springframework.web.bind.annotation.RequestBody CatDTO catDTO, BindingResult bindingResult) {
         return jsonCatServiceInterface.updateJsonCat(id, catDTO, bindingResult);
     }
 
-    // Удалить кота по ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteHibernateCat(@PathVariable Long id) {
         return jsonCatServiceInterface.deleteJsonCat(id);
@@ -70,20 +65,17 @@ public class JsonController {
         return jsonCatServiceInterface.uploadS3Image(id, imageFile);
     }
 
-    // Получить изображение для кота из S3
     @GetMapping("/{id}/image")
     public ResponseEntity<Object> getImageCat(@PathVariable Long id) {
         return jsonCatServiceInterface.getImageCat(id);
     }
 
-    // Получить котов по возрасту
     @GetMapping("/by-age")
     public List<JsonCat> getCatsByAge(@RequestParam int age) {
         logger.info("Fetching cats with age: {}", age);
         return jsonCatRepository.findByAge(age);
     }
 
-    // Получить котов по весу
     @GetMapping("/by-weight")
     public List<JsonCat> getCatsByWeight(@RequestParam BigDecimal weight) {
         logger.info("Fetching cats with weight: {}", weight);
