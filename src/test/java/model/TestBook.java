@@ -1,0 +1,22 @@
+package model;
+
+import lombok.*;
+
+import java.math.BigDecimal;
+
+@Data
+@Builder
+@RequiredArgsConstructor
+@AllArgsConstructor
+public class TestBook {
+
+    private Long id;
+
+    private String name;
+
+    private Long age;
+
+    private BigDecimal weight;
+
+    private String imageUrl;
+}
