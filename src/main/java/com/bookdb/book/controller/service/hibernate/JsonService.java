@@ -200,9 +200,9 @@ public class JsonService implements JsonServiceInterface {
         }
     }
 
-    public List<JsonBook> getBooksByAge(@RequestParam int age) {
-        logger.info("Fetching books with age: {}", age);
-        return jsonRepository.findByAge(age);
+    public List<JsonBook> getBooksByAge(@RequestParam String author) {
+        logger.info("Fetching books with age: {}", author);
+        return jsonRepository.findByAuthor(author);
     }
 
     public List<JsonBook> getBooksByWeight(@RequestParam BigDecimal weight) {

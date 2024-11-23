@@ -22,7 +22,7 @@ public class BookDAO {
                 Book book = new Book();
                 book.setId(rs.getInt("id"));
                 book.setName(rs.getString("name"));
-                book.setAge(rs.getInt("age"));
+                book.setAuthor(rs.getString("age"));
                 book.setWeight(rs.getInt("weight"));
                 books.add(book);
             }
@@ -41,7 +41,7 @@ public class BookDAO {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, book.getName());
-            pstmt.setInt(2, book.getAge());
+            pstmt.setString(2, book.getAuthor());
             pstmt.setInt(3, book.getWeight());
             pstmt.executeUpdate();
             System.out.println("Book added successfully");
@@ -64,7 +64,7 @@ public class BookDAO {
             while (rs.next()) {
                 book.setId(rs.getInt("id"));
                 book.setName(rs.getString("name"));
-                book.setAge(rs.getInt("age"));
+                book.setAuthor(rs.getString("age"));
                 book.setWeight(rs.getInt("weight"));
             }
 
@@ -81,7 +81,7 @@ public class BookDAO {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, book.getName());
-            pstmt.setInt(2, book.getAge());
+            pstmt.setString(2, book.getAuthor());
             pstmt.setInt(3, book.getWeight());
             pstmt.setInt(4, book.getId());
 

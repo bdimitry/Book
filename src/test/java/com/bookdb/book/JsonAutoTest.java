@@ -110,7 +110,6 @@ class JsonAutoTest {
         assertNotNull(response.getBody());
         TestBook book = response.getBody();
         assertEquals("Farcuad", book.getName());
-        assertEquals(4, book.getAge().intValue());
         assertEquals(4, book.getWeight().intValue());
     }
 
@@ -128,7 +127,7 @@ class JsonAutoTest {
 
     @Test
     public void testCreateBook() {
-        TestBook book = TestBook.builder().name("Felix").age(2L).weight(BigDecimal.valueOf(4)).build();
+        TestBook book = TestBook.builder().name("Felix").author("holl").weight(BigDecimal.valueOf(4)).build();
 
         HttpEntity<TestBook> bookEntity = new HttpEntity<>(book);
         ResponseEntity<TestBook> response = restTemplate.exchange(
@@ -143,14 +142,14 @@ class JsonAutoTest {
         assertNotNull(response.getBody());
         TestBook createdBook = response.getBody();
         assertEquals("Felix", createdBook.getName());
-        assertEquals(2, createdBook.getAge().intValue());
+        assertEquals(2, createdBook.getAuthor());
         assertEquals(4, createdBook.getWeight().intValue());
     }
 
     @Test
     public void testUpdateBook() {
-        JsonBook existingBook = createJsonBook("Tom", 3, 4);
-        JsonBook updatedBook = createJsonBook("Tommy", 4, 5);
+        JsonBook existingBook = createJsonBook("Tom", "Toma", 4);
+        JsonBook updatedBook = createJsonBook("Tommy", "Kola", 5);
 
         when(jsonRepository.findById(1L)).thenReturn(Optional.of(existingBook));
         when(jsonRepository.save(any(JsonBook.class))).thenReturn(updatedBook);
@@ -170,7 +169,7 @@ class JsonAutoTest {
 
     @Test
     public void testDeleteBook() {
-        TestBook book = TestBook.builder().name("Farcuad The Second").age(3L).weight(BigDecimal.valueOf(3)).build();
+        TestBook book = TestBook.builder().name("Farcuad The Second").author("Json").weight(BigDecimal.valueOf(3)).build();
         ResponseEntity<TestBook> responsePost = createBookRequest(book);
 
         TestBook postBook = responsePost.getBody();
@@ -187,13 +186,13 @@ class JsonAutoTest {
 
     @Test
     public void testUploadImageBook() throws Exception {
-        TestBook book = TestBook.builder().name("Farcuad The Second").age(3L).weight(BigDecimal.valueOf(3)).build();
+        TestBook book = TestBook.builder().name("Farcuad The Second").author("noll").weight(BigDecimal.valueOf(3)).build();
         ResponseEntity<TestBook> response = createBookRequest(book);
 
         TestBook postBook = response.getBody();
         assertEquals(201, response.getStatusCode().value());
         assertEquals("Farcuad The Second", postBook.getName());
-        assertEquals(3, postBook.getAge().intValue());
+        assertEquals(3, postBook.getAuthor());
         assertNotNull(postBook.getId());
         assertEquals(3, postBook.getWeight().intValue());
 
@@ -212,13 +211,13 @@ class JsonAutoTest {
 
     @Test
     void testUploadInvalidImageBook() throws Exception {
-        TestBook book = TestBook.builder().name("Farcuad The Second").age(3L).weight(BigDecimal.valueOf(3)).build();
+        TestBook book = TestBook.builder().name("Farcuad The Second").author("holl").weight(BigDecimal.valueOf(3)).build();
         ResponseEntity<TestBook> response = createBookRequest(book);
 
         TestBook postBook = response.getBody();
         assertEquals(201, response.getStatusCode().value());
         assertEquals("Farcuad The Second", postBook.getName());
-        assertEquals(3, postBook.getAge().intValue());
+        assertEquals(3, postBook.getAuthor());
         assertNotNull(postBook.getId());
         assertEquals(3, postBook.getWeight().intValue());
 
@@ -257,13 +256,13 @@ class JsonAutoTest {
 
     @Test
     public void testGetImageBook() throws IOException {
-        TestBook book = TestBook.builder().name("Farcuad The Second").age(3L).weight(BigDecimal.valueOf(3)).build();
+        TestBook book = TestBook.builder().name("Farcuad The Second").author("jool").weight(BigDecimal.valueOf(3)).build();
         ResponseEntity<TestBook> response = createBookRequest(book);
 
         TestBook postBook = response.getBody();
         assertEquals(201, response.getStatusCode().value());
         assertEquals("Farcuad The Second", postBook.getName());
-        assertEquals(3, postBook.getAge().intValue());
+        assertEquals(3, postBook.getAuthor());
         assertNotNull(postBook.getId());
         assertEquals(3, postBook.getWeight().intValue());
 
@@ -336,7 +335,7 @@ class JsonAutoTest {
     @Disabled
     public void testGetBooksFilteredByRsql() {
         ResponseEntity<List<TestBook>> response = restTemplate.exchange(
-                "/v4/api/books/books?weight=3&age=3",
+                "/v4/api/books/books?weight=3",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
@@ -346,7 +345,6 @@ class JsonAutoTest {
         assertEquals(200, response.getStatusCode().value());
         for(TestBook book : books){
             assertTrue(book.getWeight().floatValue() >= 6);
-            assertTrue(book.getAge().intValue() >= 3);
         }
     }
 
@@ -367,10 +365,10 @@ class JsonAutoTest {
         }
     }
 
-    private JsonBook createJsonBook(String name, int age, int weight) {
+    private JsonBook createJsonBook(String name, String author, int weight) {
         BookEntity bookEntity = new BookEntity();
         bookEntity.setName(name);
-        bookEntity.setAge(age);
+        bookEntity.setAuthor(author);
         bookEntity.setWeight(weight);
 
         return new JsonBook();

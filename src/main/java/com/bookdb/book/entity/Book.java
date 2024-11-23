@@ -11,6 +11,6 @@ import lombok.*;
 public class Book {
     private int id;
     private String name;
-    private int age;
+    private String Author;
     private int weight;
 }

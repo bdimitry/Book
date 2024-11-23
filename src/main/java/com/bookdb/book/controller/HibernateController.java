@@ -6,7 +6,7 @@ import com.bookdb.book.repositories.HibernateRepository;
 import com.bookdb.book.repositories.ImageRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.S3Client;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/v3/api/books")
@@ -30,12 +29,17 @@ public class HibernateController {
     private ImageRepository imageRepository;
 
     @Autowired
-    private S3Client s3Client;
+    private S3Client s3Client; // Если не используется, уберите
 
     @GetMapping
-    public List<HibernateBook> getAllHibernateBooks(@RequestParam(value = "weight", required = false) Double weight, @RequestParam(value = "age", required = false) Integer age) {
-        return hibernateInterfaceService.getAllHibernateBooks(weight, age);
+    public Page<HibernateBook> getAllHibernateBooks(
+            @RequestParam(value = "weight", required = false) Double weight,
+            @RequestParam(value = "author", required = false) String author,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size) {
+        return hibernateInterfaceService.getAllHibernateBooks(weight, author, page, size);
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<HibernateBook> getHibernateBookById(@PathVariable Long id) {
@@ -43,7 +47,9 @@ public class HibernateController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> createHibernateBook(@Valid @org.springframework.web.bind.annotation.RequestBody HibernateBook book, BindingResult bindingResult) {
+    public ResponseEntity<Object> createHibernateBook(
+            @Valid @RequestBody HibernateBook book,
+            BindingResult bindingResult) {
         return hibernateInterfaceService.createHibernateBook(book, bindingResult);
     }
 
@@ -57,21 +63,14 @@ public class HibernateController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteBook(@PathVariable Long id) {
-        if (id == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Id cannot be null");
-        }
-
-        Optional<HibernateBook> bookToDelete = hibernateRepository.findById(id);
-        if (bookToDelete.isPresent()) {
-            hibernateRepository.deleteById(id);
-            return ResponseEntity.ok("Book deleted successfully");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Book not found");
-        }
+        // Удаление книги делегировано в сервисный слой
+        return hibernateInterfaceService.deleteBook(id);
     }
 
     @PostMapping("/{id}/image")
-    public ResponseEntity<Object> createImageBook(@PathVariable Long id, @RequestParam("image") MultipartFile imageFile) {
+    public ResponseEntity<Object> createImageBook(
+            @PathVariable Long id,
+            @RequestParam("image") MultipartFile imageFile) {
         return hibernateInterfaceService.createImageBook(id, imageFile);
     }
 
@@ -80,3 +79,4 @@ public class HibernateController {
         return hibernateInterfaceService.getImageBook(id);
     }
 }
+

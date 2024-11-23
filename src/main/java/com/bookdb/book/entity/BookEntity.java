@@ -9,7 +9,7 @@ import lombok.*;
 public class BookEntity {
     private Long id;
     private String name;
-    private int age;
+    private String author;
     private double weight;
 }
 

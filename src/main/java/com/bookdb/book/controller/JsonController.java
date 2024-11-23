@@ -71,9 +71,9 @@ public class JsonController {
     }
 
     @GetMapping("/by-age")
-    public List<JsonBook> getBooksByAge(@RequestParam int age) {
-        logger.info("Fetching books with age: {}", age);
-        return jsonRepository.findByAge(age);
+    public List<JsonBook> getBooksByAge(@RequestParam String author) {
+        logger.info("Fetching books with age: {}", author);
+        return jsonRepository.findByAuthor(author);
     }
 
     @GetMapping("/by-weight")

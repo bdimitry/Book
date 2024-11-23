@@ -14,7 +14,7 @@ public class TestBook {
 
     private String name;
 
-    private Long age;
+    private String author;
 
     private BigDecimal weight;
 

@@ -45,8 +45,8 @@ public class JsonBook {
         return getJsonFieldAsString();
     }
 
-    @JsonProperty("age")
-    public Long getAge() {
+    @JsonProperty("author")
+    public Long getAuthor() {
         return getJsonFieldAsLong();
     }
 
@@ -59,8 +59,8 @@ public class JsonBook {
         setJsonField("name", name);
     }
 
-    public void setAge(Long age) {
-        setJsonField("age", age);
+    public void setAuthor(String author) {
+        setJsonField("author", author);
     }
 
     public void setWeight(BigDecimal weight) {

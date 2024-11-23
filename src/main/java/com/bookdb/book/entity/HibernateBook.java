@@ -24,8 +24,9 @@ public class HibernateBook {
     @Size(min = 4, max = 100, message = "Name should have between 4 and 100 characters")
     private String name;
 
-    @Min(value = 0, message = "Age must be a non-negative number")
-    private int age;
+    @NotNull(message = "Author cannot be null")
+    @Size(min = 4, max = 100, message = "Author should have between 4 and 100 characters")
+    private String author;
 
     @Min(value = 1, message = "Weight must be at least 1 kilo")
     private int weight;

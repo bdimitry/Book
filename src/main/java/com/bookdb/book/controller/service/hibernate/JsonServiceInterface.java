@@ -28,7 +28,7 @@ public interface JsonServiceInterface {
 
     ResponseEntity<Object> getImageBook(@PathVariable Long id);
 
-    List<JsonBook> getBooksByAge(@RequestParam int age);
+    List<JsonBook> getBooksByAge(@RequestParam String author);
 
     List<JsonBook> getBooksByWeight(@RequestParam BigDecimal weight);
 }

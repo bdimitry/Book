@@ -1,34 +1,33 @@
 SET search_path TO books;
 
-INSERT INTO books.book (name, age, weight)
-VALUES ('Farcuad', 4, 4);
+INSERT INTO books.book (name, author, weight)
+VALUES ('Farcuad', 'Jakob', 4);
 
-INSERT INTO books.book (name, age, weight)
-VALUES ('John', 3, 6);
 
-INSERT INTO books.book (name, age, weight)
-VALUES ('Marvel', 5, 9);
 
-INSERT INTO books.book (name, age, weight)
-VALUES ('Funtick', 1, 2);
+INSERT INTO books.book (name, author, weight)
+VALUES ('Marvel', 'Grace', 9);
 
-INSERT INTO books.book (name, age, weight)
-VALUES ('Alex', 3, 3);
+INSERT INTO books.book (name, author, weight)
+VALUES ('Funtick', 'Jakob', 2);
 
-INSERT INTO books.book (name, age, weight)
-VALUES ('Jerry', 8, 9);
+INSERT INTO books.book (name, author, weight)
+VALUES ('Alex', 'bolton', 3);
 
-INSERT INTO books.book (name, age, weight)
-VALUES ('Tom', 2, 3);
+INSERT INTO books.book (name, author, weight)
+VALUES ('Jerry', 'bolton', 9);
 
-INSERT INTO books.book (name, age, weight)
-VALUES ('Aunkere', 4, 4);
+INSERT INTO books.book (name, author, weight)
+VALUES ('Tom', 'Henry', 3);
 
-INSERT INTO books.book (name, age, weight)
-VALUES ('Zhlob', 5, 4);
+INSERT INTO books.book (name, author, weight)
+VALUES ('Aunkere', 'Farcuad', 4);
 
-INSERT INTO books.book (name, age, weight)
-VALUES ('Andrey', 3, 4);
+INSERT INTO books.book (name, author, weight)
+VALUES ('Zhlob', 'Henry', 4);
+
+INSERT INTO books.book (name, author, weight)
+VALUES ('Andrey', 'bolton', 4);
 
 INSERT INTO books.json_book (book)
 VALUES ('{"name": "Farcuad", "age": 4, "weight": 4 }');

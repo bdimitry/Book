@@ -6,14 +6,14 @@ import lombok.Data;
 public class BookDTO {
     private long id;
     private String name;
-    private int age;
+    private String author;
     private double weight;
     private String imageUrl;
 
-    public BookDTO(long id, String name, int age, double weight, String imageUrl) {
+    public BookDTO(long id, String name, String author, double weight, String imageUrl) {
         this.id = id;
         this.name = name;
-        this.age = age;
+        this.author = author;
         this.weight = weight;
         this.imageUrl = imageUrl;
     }
