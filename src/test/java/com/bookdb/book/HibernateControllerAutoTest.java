@@ -76,7 +76,7 @@ public class HibernateControllerAutoTest {
     @Test
     public void testGetBooksRsqlSearch() {
         ResponseEntity<List<HibernateBook>> response = restTemplate.exchange(
-                "/v3/api/books?weight=3&author=3",
+                "/v3/api/books?lastReaded=3&author=3",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
@@ -104,7 +104,7 @@ public class HibernateControllerAutoTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNotNull(response.getBody());
         assertTrue(response.getBody().containsKey("name"));
-        assertTrue(response.getBody().containsKey("weight"));
+        assertTrue(response.getBody().containsKey("lastReaded"));
     }
 
     @Test
@@ -189,8 +189,6 @@ public class HibernateControllerAutoTest {
         assertEquals("Farcuad", content.get(0).getName());
     }
 
-
-
     private static void createBucketIfNotExists(S3Client s3, String bucketName, Region region) {
         try {
             s3.headBucket(HeadBucketRequest.builder().bucket(bucketName).build());
@@ -208,11 +206,11 @@ public class HibernateControllerAutoTest {
         }
     }
 
-    private HibernateBook createBook(String name, String author, int weight) {
+    private HibernateBook createBook(String name, String author, int lastReaded) {
         HibernateBook book = new HibernateBook();
         book.setName(name);
         book.setAuthor(author);
-        book.setWeight(weight);
+        book.setLastReaded(lastReaded);
         return book;
     }
 

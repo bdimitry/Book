@@ -1,6 +1,7 @@
 package com.bookdb.book.controller.service.hibernate;
 
 import com.bookdb.book.controller.JsonController;
+import com.bookdb.book.controller.pagination.PageResponse;
 import com.bookdb.book.entity.BookDTO;
 import com.bookdb.book.entity.JsonBook;
 import com.bookdb.book.repositories.JsonRepository;
@@ -9,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -46,9 +49,12 @@ public class JsonService implements JsonServiceInterface {
     @Autowired
     private S3Client s3Client;
 
-    public List<JsonBook> getAllJsonBooks() {
-        return jsonRepository.findAll();
+    public Page<JsonBook> getAllJsonBooks(int page, int size) {
+        PageRequest pageable = PageRequest.of(page, size);
+        return jsonRepository.findAll(pageable);
     }
+
+
 
     public ResponseEntity<JsonBook> getJsonBookById(@PathVariable Long id) {
         logger.info("Fetching HibernateBook with ID: {}", id);
@@ -205,8 +211,8 @@ public class JsonService implements JsonServiceInterface {
         return jsonRepository.findByAuthor(author);
     }
 
-    public List<JsonBook> getBooksByWeight(@RequestParam BigDecimal weight) {
-        logger.info("Fetching books with weight: {}", weight);
-        return jsonRepository.findByWeight(weight);
+    public List<JsonBook> getBooksBylastReaded(@RequestParam BigDecimal lastReaded) {
+        logger.info("Fetching books with lastReaded: {}", lastReaded);
+        return jsonRepository.findBylastReaded(lastReaded);
     }
 }

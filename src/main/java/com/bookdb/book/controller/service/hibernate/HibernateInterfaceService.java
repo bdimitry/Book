@@ -18,7 +18,7 @@ public interface HibernateInterfaceService {
 
     ResponseEntity<Object> createImageBook(Long id, MultipartFile imageFile);
 
-    Page<HibernateBook> getAllHibernateBooks(Double weight, String author, int page, int size);
+    Page<HibernateBook> getAllHibernateBooks(Double lastReaded, String author, int page, int size);
 
     ResponseEntity<Object> updateHibernateBook(Long id, HibernateBook hibernateBook, BindingResult bindingResult);
 

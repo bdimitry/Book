@@ -1,8 +1,10 @@
 package com.bookdb.book.controller.service.hibernate;
 
+import com.bookdb.book.controller.pagination.PageResponse;
 import com.bookdb.book.entity.BookDTO;
 import com.bookdb.book.entity.JsonBook;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,7 +18,7 @@ public interface JsonServiceInterface {
 
     ResponseEntity<JsonBook> getJsonBookById(@PathVariable Long id);
 
-    List<JsonBook> getAllJsonBooks();
+    Page<JsonBook> getAllJsonBooks(int page, int size);
 
     ResponseEntity<Object> createJsonBook(@Valid @org.springframework.web.bind.annotation.RequestBody JsonBook jsonBook, BindingResult bindingResult);
 
@@ -30,5 +32,5 @@ public interface JsonServiceInterface {
 
     List<JsonBook> getBooksByAge(@RequestParam String author);
 
-    List<JsonBook> getBooksByWeight(@RequestParam BigDecimal weight);
+    List<JsonBook> getBooksBylastReaded(@RequestParam BigDecimal lastReaded);
 }

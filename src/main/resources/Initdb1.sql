@@ -4,7 +4,7 @@
     (
         name character varying(50) COLLATE pg_catalog."default",
         id SERIAL  NOT NULL,
-        weight integer,
+        lastReaded integer,
         author character varying(50),
         CONSTRAINT "book_pkey" PRIMARY KEY (id)
     );

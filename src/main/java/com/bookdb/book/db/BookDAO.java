@@ -23,7 +23,7 @@ public class BookDAO {
                 book.setId(rs.getInt("id"));
                 book.setName(rs.getString("name"));
                 book.setAuthor(rs.getString("age"));
-                book.setWeight(rs.getInt("weight"));
+                book.setLastReaded(rs.getInt("lastReaded"));
                 books.add(book);
             }
 
@@ -35,14 +35,14 @@ public class BookDAO {
     }
 
     public void createBooks(Book book) {
-        String sql = " INSERT INTO \"books\".\"book\"(name, age, weight) VALUES (?, ?, ?)";
+        String sql = " INSERT INTO \"books\".\"book\"(name, age, lastReaded) VALUES (?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, book.getName());
             pstmt.setString(2, book.getAuthor());
-            pstmt.setInt(3, book.getWeight());
+            pstmt.setInt(3, book.getLastReaded());
             pstmt.executeUpdate();
             System.out.println("Book added successfully");
 
@@ -65,7 +65,7 @@ public class BookDAO {
                 book.setId(rs.getInt("id"));
                 book.setName(rs.getString("name"));
                 book.setAuthor(rs.getString("age"));
-                book.setWeight(rs.getInt("weight"));
+                book.setLastReaded(rs.getInt("lastReaded"));
             }
 
         } catch (SQLException e) {
@@ -75,14 +75,14 @@ public class BookDAO {
     }
 
     public void updateBook(Book book) {
-        String sql = "UPDATE \"books\".\"book\" SET name = ?, age = ?, weight = ? WHERE id = ?";
+        String sql = "UPDATE \"books\".\"book\" SET name = ?, age = ?, lastReaded = ? WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, book.getName());
             pstmt.setString(2, book.getAuthor());
-            pstmt.setInt(3, book.getWeight());
+            pstmt.setInt(3, book.getLastReaded());
             pstmt.setInt(4, book.getId());
 
             int rowsUpdated = pstmt.executeUpdate();

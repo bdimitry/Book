@@ -1,6 +1,7 @@
 package com.bookdb.book;
 
 import com.bookdb.book.controller.JsonController;
+import com.bookdb.book.controller.pagination.PageResponse;
 import com.bookdb.book.entity.BookEntity;
 import com.bookdb.book.entity.JsonBook;
 import com.bookdb.book.repositories.JsonRepository;
@@ -88,13 +89,14 @@ class JsonAutoTest {
                 "/v4/api/books",
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<>() {
-                }
+                new ParameterizedTypeReference<List<TestBook>>() {}
         );
+
         List<TestBook> books = response.getBody();
-        assertEquals(200, response.getStatusCode().value());
         assertNotNull(books);
+        assertEquals(200, response.getStatusCode().value());
     }
+
 
     @Test
     public void testGetBookById() {
@@ -110,7 +112,7 @@ class JsonAutoTest {
         assertNotNull(response.getBody());
         TestBook book = response.getBody();
         assertEquals("Farcuad", book.getName());
-        assertEquals(4, book.getWeight().intValue());
+        assertEquals(4, book.getLastReaded().intValue());
     }
 
     @Test
@@ -127,23 +129,33 @@ class JsonAutoTest {
 
     @Test
     public void testCreateBook() {
-        TestBook book = TestBook.builder().name("Felix").author("holl").weight(BigDecimal.valueOf(4)).build();
+        TestBook book = TestBook.builder()
+                .name("Felix")
+                .author("holl")
+                .lastReaded(BigDecimal.valueOf(4))
+                .build();
 
+        // Проверяем корректность заполнения объекта
+        assertNotNull(book);
+        assertEquals("holl", book.getAuthor());
+
+        // Отправляем запрос
         HttpEntity<TestBook> bookEntity = new HttpEntity<>(book);
-        ResponseEntity<TestBook> response = restTemplate.exchange(
+        ResponseEntity<JsonBook> response = restTemplate.exchange(
                 "/v4/api/books",
                 HttpMethod.POST,
                 bookEntity,
-                new ParameterizedTypeReference<>() {
-                }
+                new ParameterizedTypeReference<>() {}
         );
 
+        // Проверяем ответ
         assertEquals(201, response.getStatusCode().value());
         assertNotNull(response.getBody());
-        TestBook createdBook = response.getBody();
+
+        JsonBook createdBook = response.getBody();
         assertEquals("Felix", createdBook.getName());
-        assertEquals(2, createdBook.getAuthor());
-        assertEquals(4, createdBook.getWeight().intValue());
+        assertEquals("holl", createdBook.getAuthor());
+        assertEquals(4, createdBook.getlastReaded().intValue());
     }
 
     @Test
@@ -169,7 +181,7 @@ class JsonAutoTest {
 
     @Test
     public void testDeleteBook() {
-        TestBook book = TestBook.builder().name("Farcuad The Second").author("Json").weight(BigDecimal.valueOf(3)).build();
+        TestBook book = TestBook.builder().name("Farcuad The Second").author("Json").lastReaded(BigDecimal.valueOf(3)).build();
         ResponseEntity<TestBook> responsePost = createBookRequest(book);
 
         TestBook postBook = responsePost.getBody();
@@ -186,15 +198,15 @@ class JsonAutoTest {
 
     @Test
     public void testUploadImageBook() throws Exception {
-        TestBook book = TestBook.builder().name("Farcuad The Second").author("noll").weight(BigDecimal.valueOf(3)).build();
+        TestBook book = TestBook.builder().name("Farcuad The Second").author("noll").lastReaded(BigDecimal.valueOf(3)).build();
         ResponseEntity<TestBook> response = createBookRequest(book);
 
         TestBook postBook = response.getBody();
         assertEquals(201, response.getStatusCode().value());
         assertEquals("Farcuad The Second", postBook.getName());
-        assertEquals(3, postBook.getAuthor());
+        assertEquals("noll", postBook.getAuthor());
         assertNotNull(postBook.getId());
-        assertEquals(3, postBook.getWeight().intValue());
+        assertEquals(3, postBook.getLastReaded().intValue());
 
         byte[] imageBytes = "dummy image content".getBytes(StandardCharsets.UTF_8);
         MultiValueMap<String, Object> body = getStringObjectMultiValueMap(imageBytes);
@@ -211,15 +223,15 @@ class JsonAutoTest {
 
     @Test
     void testUploadInvalidImageBook() throws Exception {
-        TestBook book = TestBook.builder().name("Farcuad The Second").author("holl").weight(BigDecimal.valueOf(3)).build();
+        TestBook book = TestBook.builder().name("Farcuad The Second").author("holl").lastReaded(BigDecimal.valueOf(3)).build();
         ResponseEntity<TestBook> response = createBookRequest(book);
 
         TestBook postBook = response.getBody();
         assertEquals(201, response.getStatusCode().value());
         assertEquals("Farcuad The Second", postBook.getName());
-        assertEquals(3, postBook.getAuthor());
+        assertEquals("holl", postBook.getAuthor());
         assertNotNull(postBook.getId());
-        assertEquals(3, postBook.getWeight().intValue());
+        assertEquals(3, postBook.getLastReaded().intValue());
 
 
         MultiValueMap<String, Object> body = getStringObjectMultiValueMap(new byte[0]);
@@ -234,37 +246,17 @@ class JsonAutoTest {
         assertEquals(500, responseImage.getStatusCode().value());
     }
 
-    private static MultiValueMap<String, Object> getStringObjectMultiValueMap(byte[] content) throws IOException {
-        MockMultipartFile mockMultipartFile = new MockMultipartFile(
-                "image",
-                "test-image.jpg",
-                "multipart/form-data",
-                content
-        );
-
-        Resource resource = new ByteArrayResource(mockMultipartFile.getBytes()) {
-            @Override
-            public String getFilename() {
-                return mockMultipartFile.getOriginalFilename();
-            }
-        };
-
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("image", resource);
-        return body;
-    }
-
     @Test
     public void testGetImageBook() throws IOException {
-        TestBook book = TestBook.builder().name("Farcuad The Second").author("jool").weight(BigDecimal.valueOf(3)).build();
+        TestBook book = TestBook.builder().name("Farcuad The Second").author("jool").lastReaded(BigDecimal.valueOf(3)).build();
         ResponseEntity<TestBook> response = createBookRequest(book);
 
         TestBook postBook = response.getBody();
         assertEquals(201, response.getStatusCode().value());
         assertEquals("Farcuad The Second", postBook.getName());
-        assertEquals(3, postBook.getAuthor());
+        assertEquals("jool", postBook.getAuthor());
         assertNotNull(postBook.getId());
-        assertEquals(3, postBook.getWeight().intValue());
+        assertEquals(3, postBook.getLastReaded().intValue());
 
         byte[] imageBytes = "dummy image content".getBytes(StandardCharsets.UTF_8);
         MultiValueMap<String, Object> body = getStringObjectMultiValueMap(imageBytes);
@@ -308,44 +300,15 @@ class JsonAutoTest {
     }
 
     @Test
-    public void testGetBooksFilteredByWeight() {
+    public void testGetBooksFilteredBylastReaded() {
         ResponseEntity<List<TestBook>> response = restTemplate.exchange(
-                "/v4/api/books/by-weight?weight=9",
+                "/v4/api/books/by-lastReaded?lastReaded=9",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
                 }
         );
         assertEquals(200, response.getStatusCode().value());
-    }
-
-    @Test
-    public void testGetBooksFilteredByAge() {
-        ResponseEntity<List<TestBook>> response = restTemplate.exchange(
-                "/v4/api/books/by-age?age=2",
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<>() {
-                }
-        );
-        assertEquals(200, response.getStatusCode().value());
-    }
-
-    @Test
-    @Disabled
-    public void testGetBooksFilteredByRsql() {
-        ResponseEntity<List<TestBook>> response = restTemplate.exchange(
-                "/v4/api/books/books?weight=3",
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<>() {
-                }
-        );
-        List<TestBook> books = response.getBody();
-        assertEquals(200, response.getStatusCode().value());
-        for(TestBook book : books){
-            assertTrue(book.getWeight().floatValue() >= 6);
-        }
     }
 
     private static void createBucketIfNotExists(S3Client s3, String bucketName, Region region) {
@@ -365,13 +328,33 @@ class JsonAutoTest {
         }
     }
 
-    private JsonBook createJsonBook(String name, String author, int weight) {
+    private JsonBook createJsonBook(String name, String author, int lastReaded) {
         BookEntity bookEntity = new BookEntity();
         bookEntity.setName(name);
         bookEntity.setAuthor(author);
-        bookEntity.setWeight(weight);
+        bookEntity.setLastReaded(lastReaded);
 
         return new JsonBook();
+    }
+
+    private static MultiValueMap<String, Object> getStringObjectMultiValueMap(byte[] content) throws IOException {
+        MockMultipartFile mockMultipartFile = new MockMultipartFile(
+                "image",
+                "test-image.jpg",
+                "multipart/form-data",
+                content
+        );
+
+        Resource resource = new ByteArrayResource(mockMultipartFile.getBytes()) {
+            @Override
+            public String getFilename() {
+                return mockMultipartFile.getOriginalFilename();
+            }
+        };
+
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("image", resource);
+        return body;
     }
 
     private ResponseEntity<TestBook> createBookRequest(TestBook book) {

@@ -46,12 +46,12 @@ public class JsonBook {
     }
 
     @JsonProperty("author")
-    public Long getAuthor() {
-        return getJsonFieldAsLong();
+    public String getAuthor() {
+        return getJsonFieldAsStringAuthor();
     }
 
-    @JsonProperty("weight")
-    public BigDecimal getWeight() {
+    @JsonProperty("lastReaded")
+    public BigDecimal getlastReaded() {
         return getJsonFieldAsBigDecimal();
     }
 
@@ -63,8 +63,8 @@ public class JsonBook {
         setJsonField("author", author);
     }
 
-    public void setWeight(BigDecimal weight) {
-        setJsonField("weight", weight);
+    public void setlastReaded(BigDecimal lastReaded) {
+        setJsonField("lastReaded", lastReaded);
     }
 
     private String getJsonFieldAsString() {
@@ -77,10 +77,10 @@ public class JsonBook {
         }
     }
 
-    private Long getJsonFieldAsLong() {
+    private String getJsonFieldAsStringAuthor() {
         try {
             JsonNode node = objectMapper.readTree(book);
-            return node.has("age") ? node.get("age").asLong() : null;
+            return node.has("author") ? node.get("author").asText() : null;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -90,7 +90,7 @@ public class JsonBook {
     private BigDecimal getJsonFieldAsBigDecimal() {
         try {
             JsonNode node = objectMapper.readTree(book);
-            return node.has("weight") ? node.get("weight").decimalValue() : null;
+            return node.has("lastReaded") ? node.get("lastReaded").decimalValue() : null;
         } catch (Exception e) {
             e.printStackTrace();
             return null;

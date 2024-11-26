@@ -33,11 +33,11 @@ public class HibernateController {
 
     @GetMapping
     public Page<HibernateBook> getAllHibernateBooks(
-            @RequestParam(value = "weight", required = false) Double weight,
+            @RequestParam(value = "lastReaded", required = false) Double lastReaded,
             @RequestParam(value = "author", required = false) String author,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "5") int size) {
-        return hibernateInterfaceService.getAllHibernateBooks(weight, author, page, size);
+        return hibernateInterfaceService.getAllHibernateBooks(lastReaded, author, page, size);
     }
 
 

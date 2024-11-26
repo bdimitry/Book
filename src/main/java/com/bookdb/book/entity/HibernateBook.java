@@ -28,7 +28,7 @@ public class HibernateBook {
     @Size(min = 4, max = 100, message = "Author should have between 4 and 100 characters")
     private String author;
 
-    @Min(value = 1, message = "Weight must be at least 1 kilo")
-    private int weight;
+    @Min(value = 1, message = "lastReaded must be at least 1 kilo")
+    private int lastReaded;
 
 }

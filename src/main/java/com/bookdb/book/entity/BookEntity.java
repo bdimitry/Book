@@ -10,6 +10,6 @@ public class BookEntity {
     private Long id;
     private String name;
     private String author;
-    private double weight;
+    private double lastReaded;
 }
 

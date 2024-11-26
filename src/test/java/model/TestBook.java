@@ -16,7 +16,7 @@ public class TestBook {
 
     private String author;
 
-    private BigDecimal weight;
+    private BigDecimal lastReaded;
 
     private String imageUrl;
 }

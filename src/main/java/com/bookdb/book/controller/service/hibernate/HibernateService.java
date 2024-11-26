@@ -84,7 +84,7 @@ public class HibernateService implements HibernateInterfaceService {
         HibernateBook existingBook = existingBookOptional.get();
         existingBook.setName(hibernateBook.getName());
         existingBook.setAuthor(hibernateBook.getAuthor());
-        existingBook.setWeight(hibernateBook.getWeight());
+        existingBook.setLastReaded(hibernateBook.getLastReaded());
         // Copy any other fields that need to be updated
 
         HibernateBook savedBook = hibernateRepository.save(existingBook);
@@ -126,8 +126,8 @@ public class HibernateService implements HibernateInterfaceService {
         }
     }
 
-    public Page<HibernateBook> getAllHibernateBooks(Double weight, String author, int page, int size) {
-        Specification<HibernateBook> specification = toSpecification(weight, author);
+    public Page<HibernateBook> getAllHibernateBooks(Double lastReaded, String author, int page, int size) {
+        Specification<HibernateBook> specification = toSpecification(lastReaded, author);
 
         PageRequest pageable = PageRequest.of(page, size);
 
@@ -141,11 +141,11 @@ public class HibernateService implements HibernateInterfaceService {
                 HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    private Specification<HibernateBook> toSpecification(Double weight, String author) {
+    private Specification<HibernateBook> toSpecification(Double lastReaded, String author) {
         return (root, query, criteriaBuilder) -> {
             var predicate = criteriaBuilder.conjunction(); // Инициализируем предикат
-            if (weight != null) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("weight"), weight));
+            if (lastReaded != null) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("lastReaded"), lastReaded));
             }
             if (author != null && !author.isEmpty()) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("author"), "%" + author + "%"));
