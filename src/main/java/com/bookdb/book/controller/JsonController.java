@@ -1,6 +1,5 @@
 package com.bookdb.book.controller;
 
-import com.bookdb.book.controller.pagination.PageResponse;
 import com.bookdb.book.controller.service.hibernate.JsonServiceInterface;
 import com.bookdb.book.entity.BookDTO;
 import com.bookdb.book.entity.JsonBook;
@@ -42,7 +41,7 @@ public class JsonController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "5") int size) {
         Page<JsonBook> result = jsonServiceInterface.getAllJsonBooks(page, size);
-        return ResponseEntity.ok(result.getContent()); // Возвращаем только content
+        return ResponseEntity.ok(result.getContent());
     }
 
     @GetMapping("/{id}")

@@ -9,8 +9,8 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,11 +20,9 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.data.domain.PageRequest;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -143,7 +141,7 @@ public class HibernateService implements HibernateInterfaceService {
 
     private Specification<HibernateBook> toSpecification(Double lastReaded, String author) {
         return (root, query, criteriaBuilder) -> {
-            var predicate = criteriaBuilder.conjunction(); // Инициализируем предикат
+            var predicate = criteriaBuilder.conjunction();
             if (lastReaded != null) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("lastReaded"), lastReaded));
             }

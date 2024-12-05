@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.S3Client;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/v3/api/books")
 public class HibernateController {
@@ -29,7 +27,7 @@ public class HibernateController {
     private ImageRepository imageRepository;
 
     @Autowired
-    private S3Client s3Client; // Если не используется, уберите
+    private S3Client s3Client;
 
     @GetMapping
     public Page<HibernateBook> getAllHibernateBooks(
@@ -63,7 +61,6 @@ public class HibernateController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteBook(@PathVariable Long id) {
-        // Удаление книги делегировано в сервисный слой
         return hibernateInterfaceService.deleteBook(id);
     }
 

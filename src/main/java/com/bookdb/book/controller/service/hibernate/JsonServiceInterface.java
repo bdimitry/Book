@@ -1,6 +1,5 @@
 package com.bookdb.book.controller.service.hibernate;
 
-import com.bookdb.book.controller.pagination.PageResponse;
 import com.bookdb.book.entity.BookDTO;
 import com.bookdb.book.entity.JsonBook;
 import jakarta.validation.Valid;

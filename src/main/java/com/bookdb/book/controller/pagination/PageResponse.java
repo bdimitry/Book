@@ -1,7 +1,6 @@
 package com.bookdb.book.controller.pagination;
 
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
 import java.util.List;

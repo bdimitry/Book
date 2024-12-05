@@ -97,7 +97,6 @@ class JsonAutoTest {
         assertEquals(200, response.getStatusCode().value());
     }
 
-
     @Test
     public void testGetBookById() {
         ResponseEntity<TestBook> response = restTemplate.exchange(
@@ -135,11 +134,9 @@ class JsonAutoTest {
                 .lastReaded(BigDecimal.valueOf(4))
                 .build();
 
-        // Проверяем корректность заполнения объекта
         assertNotNull(book);
         assertEquals("holl", book.getAuthor());
 
-        // Отправляем запрос
         HttpEntity<TestBook> bookEntity = new HttpEntity<>(book);
         ResponseEntity<JsonBook> response = restTemplate.exchange(
                 "/v4/api/books",
@@ -148,7 +145,6 @@ class JsonAutoTest {
                 new ParameterizedTypeReference<>() {}
         );
 
-        // Проверяем ответ
         assertEquals(201, response.getStatusCode().value());
         assertNotNull(response.getBody());
 
