@@ -1,7 +1,6 @@
-package com.bookdb.book.controller.service.hibernate;
+package com.bookdb.book.controller.service;
 
 import com.bookdb.book.controller.JsonController;
-import com.bookdb.book.controller.pagination.PageResponse;
 import com.bookdb.book.entity.BookDTO;
 import com.bookdb.book.entity.JsonBook;
 import com.bookdb.book.repositories.JsonRepository;

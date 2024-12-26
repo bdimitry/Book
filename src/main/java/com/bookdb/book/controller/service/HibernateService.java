@@ -1,4 +1,4 @@
-package com.bookdb.book.controller.service.hibernate;
+package com.bookdb.book.controller.service;
 
 import com.bookdb.book.controller.HibernateController;
 import com.bookdb.book.entity.HibernateBook;

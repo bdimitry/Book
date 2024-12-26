@@ -1,6 +1,6 @@
 package com.bookdb.book.controller;
 
-import com.bookdb.book.controller.service.hibernate.HibernateInterfaceService;
+import com.bookdb.book.controller.service.HibernateInterfaceService;
 import com.bookdb.book.entity.HibernateBook;
 import com.bookdb.book.repositories.HibernateRepository;
 import com.bookdb.book.repositories.ImageRepository;
