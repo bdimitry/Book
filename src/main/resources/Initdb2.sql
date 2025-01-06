@@ -1,9 +1,14 @@
 SET search_path TO books;
 
+-------------------------------------------------
+
+INSERT INTO users (username, password)
+VALUES ('john_doe', 'secure_password123');
+
+-------------------------------------------------
+
 INSERT INTO books.book (name, author, lastReaded)
 VALUES ('Farcuad', 'Jakob', 4);
-
-
 
 INSERT INTO books.book (name, author, lastReaded)
 VALUES ('Marvel', 'Grace', 9);
@@ -28,6 +33,8 @@ VALUES ('Zhlob', 'Henry', 4);
 
 INSERT INTO books.book (name, author, lastReaded)
 VALUES ('Andrey', 'bolton', 4);
+
+-------------------------------------------------
 
 INSERT INTO books.json_book (book)
 VALUES ('{"name": "Farcuad", "author": "Henry", "lastReaded": 4 }');

@@ -28,4 +28,5 @@ public class MyUserPrincipal implements UserDetails {
     public String getUsername() {
         return "";
     }
+    //...
 }
