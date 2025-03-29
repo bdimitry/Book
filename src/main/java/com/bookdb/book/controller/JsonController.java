@@ -1,6 +1,6 @@
 package com.bookdb.book.controller;
 
-import com.bookdb.book.controller.service.hibernate.JsonServiceInterface;
+import com.bookdb.book.controller.service.JsonServiceInterface;
 import com.bookdb.book.entity.BookDTO;
 import com.bookdb.book.entity.JsonBook;
 import com.bookdb.book.repositories.JsonRepository;

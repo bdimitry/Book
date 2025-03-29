@@ -1,4 +1,4 @@
-package com.bookdb.book.controller.service.hibernate;
+package com.bookdb.book.controller.service;
 
 import com.bookdb.book.entity.HibernateBook;
 import org.springframework.data.domain.Page;
